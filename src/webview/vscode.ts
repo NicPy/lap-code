@@ -1,4 +1,4 @@
-import type { WebviewMessage, CompletionStatus, ActiveTask, TaskRecord } from '@shared/types';
+import type { WebviewMessage, CompletionStatus, ActiveTask, TaskRecord, LeetcodeProblem } from '@shared/types';
 import { applyStateSnapshot, applyTick } from './store';
 
 export type VsCodeApi = {
@@ -33,7 +33,7 @@ function simulateSnapshot(): void {
   applyStateSnapshot({ activeTask: mockTask, history: [...mockHistory] });
 }
 
-function simulateStart(name: string, plannedMinutes: number): void {
+function simulateStart(name: string, plannedMinutes: number, _slug?: string): void {
   mockTask = {
     id: 'dev-' + Date.now(),
     name,
@@ -96,7 +96,7 @@ function createMockVsCode(): VsCodeApi {
           setTimeout(simulateSnapshot, 50);
           break;
         case 'startTask':
-          setTimeout(() => simulateStart(msg.name, msg.plannedMinutes), 50);
+          setTimeout(() => simulateStart(msg.name, msg.plannedMinutes, msg.source === 'leetcode' ? msg.leetcodeProblem?.slug : undefined), 50);
           break;
         case 'pauseTask':
           simulatePause();
@@ -107,9 +107,28 @@ function createMockVsCode(): VsCodeApi {
         case 'completeTask':
           simulateComplete(msg.status);
           break;
+        case 'searchLeetcode':
+          setTimeout(() => simulateLeetcodeSearch(msg.query), 300);
+          break;
       }
     },
   };
+}
+
+const MOCK_PROBLEMS: LeetcodeProblem[] = [
+  { slug: 'two-sum',                                  title: 'Two Sum',                                  frontendId: '1',   difficulty: 'Easy'   },
+  { slug: 'longest-substring-without-repeating-characters', title: 'Longest Substring Without Repeating Characters', frontendId: '3', difficulty: 'Medium' },
+  { slug: 'median-of-two-sorted-arrays',              title: 'Median of Two Sorted Arrays',              frontendId: '4',   difficulty: 'Hard'   },
+  { slug: 'reverse-linked-list',                      title: 'Reverse Linked List',                      frontendId: '206', difficulty: 'Easy'   },
+  { slug: 'valid-parentheses',                        title: 'Valid Parentheses',                        frontendId: '20',  difficulty: 'Easy'   },
+];
+
+function simulateLeetcodeSearch(query: string): void {
+  const q = query.toLowerCase();
+  const problems = q
+    ? MOCK_PROBLEMS.filter(p => p.title.toLowerCase().includes(q) || p.frontendId.includes(q))
+    : MOCK_PROBLEMS;
+  window.dispatchEvent(new MessageEvent('message', { data: { type: 'leetcodeSearchResults', problems } }));
 }
 
 // ── Export real or mock API ───────────────────────────────────────────────────

@@ -115,6 +115,94 @@ select:focus {
   border-color: var(--vscode-focusBorder);
 }
 
+.select-full {
+  width: 100%;
+}
+
+select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Combobox ───────────────────────────────────────────────────────────── */
+
+.combobox {
+  position: relative;
+}
+
+.combobox input {
+  width: 100%;
+}
+
+.combobox__status {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  margin-top: 4px;
+}
+
+.combobox__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin: 2px 0 0;
+  padding: 2px 0;
+  list-style: none;
+  background: var(--vscode-dropdown-background);
+  border: 1px solid var(--vscode-focusBorder);
+  border-radius: 2px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.combobox__option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.combobox__option--focused {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.combobox__option-id {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+  flex-shrink: 0;
+  min-width: 24px;
+}
+
+.combobox__option-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combobox__option-diff {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 8px;
+}
+
+.diff--easy   { background: var(--vscode-testing-iconPassed, #73c991); color: #000; }
+.diff--medium { background: #e5a02d; color: #000; }
+.diff--hard   { background: var(--vscode-testing-iconFailed, #f48771); color: #000; }
+
+/* ── Form error ─────────────────────────────────────────────────────────── */
+
+.form-error {
+  font-size: 11px;
+  color: var(--vscode-testing-iconFailed, #f48771);
+  margin-top: 4px;
+}
+
 /* ── Active task view ───────────────────────────────────────────────────── */
 
 .active-task {

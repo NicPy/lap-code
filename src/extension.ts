@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { TimerViewProvider } from './TimerViewProvider';
-import { VIEW_TYPE, GLOBALSTATE_KEY, CMD_FOCUS_PANEL } from './constants';
-import type { ActiveTask, TaskRecord, WebviewMessage } from './types';
+import { VIEW_TYPE, GLOBALSTATE_KEY, CMD_FOCUS_PANEL, LEETCODE_LANGUAGES } from './constants';
+import type { ActiveTask, TaskRecord, WebviewMessage, LeetcodeProblem } from './types';
+import { searchProblems, getProblemDetails, buildFileContent } from './leetcode';
 
 // Module-level state — single source of truth
 let activeTask: ActiveTask | null = null;
@@ -45,11 +46,24 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       break;
     }
 
+    case 'searchLeetcode': {
+      searchProblems(msg.query)
+        .then(problems => provider.sendHostMessage({ type: 'leetcodeSearchResults', problems }))
+        .catch(err =>
+          provider.sendHostMessage({ type: 'leetcodeError', message: String(err?.message ?? err) }),
+        );
+      break;
+    }
+
     case 'startTask': {
+      const taskName = msg.name;
+      const plannedSeconds = msg.plannedMinutes * 60;
+
+      // Start the timer immediately
       activeTask = {
         id: generateId(),
-        name: msg.name,
-        plannedSeconds: msg.plannedMinutes * 60,
+        name: taskName,
+        plannedSeconds,
         elapsedSeconds: 0,
         isPaused: false,
       };
@@ -57,6 +71,13 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       statusBarItem.text = formatStatusBar(activeTask);
       statusBarItem.show();
       provider.sendSnapshot(activeTask, loadHistory());
+
+      // For LeetCode tasks: fetch details and create file in the background
+      if (msg.source === 'leetcode' && msg.leetcodeProblem && msg.language) {
+        createLeetcodeFile(msg.leetcodeProblem, msg.language).catch(err => {
+          console.error('[lap-code] Failed to create LeetCode file:', err);
+        });
+      }
       break;
     }
 
@@ -100,6 +121,30 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       break;
     }
   }
+}
+
+async function createLeetcodeFile(problem: LeetcodeProblem, langSlug: string): Promise<void> {
+  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri;
+  if (!workspaceRoot) { return; }
+
+  const lang = LEETCODE_LANGUAGES.find(l => l.slug === langSlug);
+  const ext = lang?.ext ?? 'js';
+
+  const details = await getProblemDetails(problem.slug);
+  const content = buildFileContent(problem, details, langSlug);
+
+  const leetcodeDir = vscode.Uri.joinPath(workspaceRoot, 'leetcode');
+  const fileUri = vscode.Uri.joinPath(leetcodeDir, `${problem.slug}.${ext}`);
+
+  // Ensure the directory exists
+  await vscode.workspace.fs.createDirectory(leetcodeDir);
+
+  // Write the file (overwrite if it already exists)
+  await vscode.workspace.fs.writeFile(fileUri, Buffer.from(content, 'utf8'));
+
+  // Open the file in the editor
+  const doc = await vscode.workspace.openTextDocument(fileUri);
+  await vscode.window.showTextDocument(doc, { preview: false });
 }
 
 function startInterval(): void {

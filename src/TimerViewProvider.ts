@@ -39,6 +39,10 @@ export class TimerViewProvider implements vscode.WebviewViewProvider {
     this._post({ type: 'tick', elapsedSeconds, isPaused });
   }
 
+  sendHostMessage(msg: HostMessage): void {
+    this._post(msg);
+  }
+
   private _post(msg: HostMessage): void {
     this._webview?.postMessage(msg);
   }
