@@ -37,6 +37,7 @@
     "watch:ext": "tsc -watch -p ./",
     "watch:webview": "vite build --watch",
     "dev:webview": "vite",
+    "prebuild": "npm version patch --no-git-tag-version",
     "build": "tsc -p ./ && vite build",
     "dev": "concurrently \"npm run watch:ext\" \"npm run watch:webview\""
   },
