@@ -1,5 +1,5 @@
 export type CompletionStatus = 'successfully' | 'failed';
-export type TaskSource = 'manual' | 'leetcode';
+export type TaskSource = 'manual' | 'leetcode' | 'neetcode';
 
 export interface LeetcodeProblem {
   slug: string;
@@ -27,16 +27,19 @@ export interface ActiveTask {
 
 // Webview → Host
 export type WebviewMessage =
-  | { type: 'startTask'; name: string; plannedMinutes: number; source: TaskSource; language?: string; leetcodeProblem?: LeetcodeProblem }
+  | { type: 'startTask'; name: string; plannedMinutes: number; source: TaskSource; language?: string; leetcodeProblem?: LeetcodeProblem; neetcodeProblem?: LeetcodeProblem }
   | { type: 'pauseTask' }
   | { type: 'resumeTask' }
   | { type: 'completeTask'; status: CompletionStatus }
   | { type: 'webviewReady' }
-  | { type: 'searchLeetcode'; query: string };
+  | { type: 'searchLeetcode'; query: string }
+  | { type: 'searchNeetcode'; query: string };
 
 // Host → Webview
 export type HostMessage =
   | { type: 'stateSnapshot'; activeTask: ActiveTask | null; history: TaskRecord[] }
   | { type: 'tick'; elapsedSeconds: number; isPaused: boolean }
   | { type: 'leetcodeSearchResults'; problems: LeetcodeProblem[] }
-  | { type: 'leetcodeError'; message: string };
+  | { type: 'leetcodeError'; message: string }
+  | { type: 'neetcodeSearchResults'; problems: LeetcodeProblem[] }
+  | { type: 'neetcodeError'; message: string };

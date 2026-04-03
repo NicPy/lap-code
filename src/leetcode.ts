@@ -133,15 +133,17 @@ export function buildFileContent(
   problem: LeetcodeProblem,
   details: ProblemDetails,
   langSlug: string,
+  problemUrl?: string,
 ): string {
   const desc = htmlToText(details.content);
   const lang = LEETCODE_LANGUAGES.find(l => l.slug === langSlug);
   const snippet = details.codeSnippets[langSlug] ?? '';
+  const url = problemUrl ?? `https://leetcode.com/problems/${problem.slug}/`;
 
   const commentLines = [
     `${problem.frontendId}. ${problem.title}`,
     `Difficulty: ${problem.difficulty}`,
-    `URL: https://leetcode.com/problems/${problem.slug}/`,
+    `URL: ${url}`,
     '',
     ...desc.split('\n'),
   ];

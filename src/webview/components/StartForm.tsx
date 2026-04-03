@@ -14,13 +14,20 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-// ── LeetCode combobox ─────────────────────────────────────────────────────────
+// ── Generic problem combobox ───────────────────────────────────────────────────
 
-interface ComboboxProps {
+type SearchMsgType = 'searchLeetcode' | 'searchNeetcode';
+type ResultsMsgType = 'leetcodeSearchResults' | 'neetcodeSearchResults';
+type ErrorMsgType = 'leetcodeError' | 'neetcodeError';
+
+interface ProblemComboboxProps {
   onSelect: (problem: LeetcodeProblem) => void;
+  searchMsg: SearchMsgType;
+  resultsMsg: ResultsMsgType;
+  errorMsg: ErrorMsgType;
 }
 
-function LeetcodeCombobox({ onSelect }: ComboboxProps) {
+function ProblemCombobox({ onSelect, searchMsg, resultsMsg, errorMsg }: ProblemComboboxProps) {
   const [inputValue, setInputValue] = useState('');
   const [results, setResults] = useState<LeetcodeProblem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +39,16 @@ function LeetcodeCombobox({ onSelect }: ComboboxProps) {
 
   const debouncedInput = useDebounce(inputValue, 400);
 
+  // Reset state when the search message type changes (source switched)
+  useEffect(() => {
+    setInputValue('');
+    setResults([]);
+    setIsOpen(false);
+    setSelected(null);
+    setSearchError('');
+    onSelect(null!);
+  }, [searchMsg]);
+
   // Trigger search when debounced input changes (and no problem is already selected)
   useEffect(() => {
     if (selected) { return; }
@@ -39,27 +56,27 @@ function LeetcodeCombobox({ onSelect }: ComboboxProps) {
     if (!q) { setResults([]); setIsOpen(false); return; }
     setIsSearching(true);
     setSearchError('');
-    vscode.postMessage({ type: 'searchLeetcode', query: q });
+    vscode.postMessage({ type: searchMsg, query: q });
   }, [debouncedInput, selected]);
 
   // Receive search results from host
   useEffect(() => {
     function handler(event: MessageEvent) {
       const msg = event.data;
-      if (msg.type === 'leetcodeSearchResults') {
+      if (msg.type === resultsMsg) {
         setResults(msg.problems as LeetcodeProblem[]);
         setIsSearching(false);
         setIsOpen((msg.problems as LeetcodeProblem[]).length > 0);
         setFocusedIndex(-1);
       }
-      if (msg.type === 'leetcodeError') {
+      if (msg.type === errorMsg) {
         setSearchError(msg.message as string);
         setIsSearching(false);
       }
     }
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, []);
+  }, [resultsMsg, errorMsg]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -83,8 +100,8 @@ function LeetcodeCombobox({ onSelect }: ComboboxProps) {
   function handleInput(e: Event) {
     const val = (e.currentTarget as HTMLInputElement).value;
     setInputValue(val);
-    setSelected(null); // clear selection when user edits
-    onSelect(null!);   // notify parent
+    setSelected(null);
+    onSelect(null!);
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -164,6 +181,16 @@ export function StartForm() {
         leetcodeProblem: selectedProblem,
         language,
       });
+    } else if (source === 'neetcode') {
+      if (!selectedProblem) { return; }
+      vscode.postMessage({
+        type: 'startTask',
+        name: selectedProblem.title,
+        plannedMinutes,
+        source: 'neetcode',
+        neetcodeProblem: selectedProblem,
+        language,
+      });
     } else {
       const name = nameRef.current?.value.trim() ?? '';
       if (!name) { nameRef.current?.focus(); return; }
@@ -174,6 +201,8 @@ export function StartForm() {
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === 'Enter') { handleStart(); }
   }
+
+  const isProblemSource = source === 'leetcode' || source === 'neetcode';
 
   return (
     <div class="start-form">
@@ -188,16 +217,22 @@ export function StartForm() {
           onChange={e => setSource((e.currentTarget as HTMLSelectElement).value as TaskSource)}
         >
           <option value="leetcode">LeetCode</option>
+          <option value="neetcode">NeetCode</option>
           <option value="manual">Manual</option>
         </select>
       </div>
 
-      {source === 'leetcode' ? (
+      {isProblemSource ? (
         <>
           {/* ── Problem combobox ── */}
           <div class="form-group">
             <label>Problem</label>
-            <LeetcodeCombobox onSelect={setSelectedProblem} />
+            <ProblemCombobox
+              onSelect={setSelectedProblem}
+              searchMsg={source === 'neetcode' ? 'searchNeetcode' : 'searchLeetcode'}
+              resultsMsg={source === 'neetcode' ? 'neetcodeSearchResults' : 'leetcodeSearchResults'}
+              errorMsg={source === 'neetcode' ? 'neetcodeError' : 'leetcodeError'}
+            />
           </div>
 
           {/* ── Language selector ── */}
@@ -246,7 +281,7 @@ export function StartForm() {
       <button
         class="btn-primary btn-full"
         onClick={handleStart}
-        disabled={source === 'leetcode' && !selectedProblem}
+        disabled={isProblemSource && !selectedProblem}
       >
         Start Task
       </button>

@@ -95,9 +95,15 @@ function createMockVsCode(): VsCodeApi {
         case 'webviewReady':
           setTimeout(simulateSnapshot, 50);
           break;
-        case 'startTask':
-          setTimeout(() => simulateStart(msg.name, msg.plannedMinutes, msg.source === 'leetcode' ? msg.leetcodeProblem?.slug : undefined), 50);
+        case 'startTask': {
+          const slug = msg.source === 'leetcode'
+            ? msg.leetcodeProblem?.slug
+            : msg.source === 'neetcode'
+              ? msg.neetcodeProblem?.slug
+              : undefined;
+          setTimeout(() => simulateStart(msg.name, msg.plannedMinutes, slug), 50);
           break;
+        }
         case 'pauseTask':
           simulatePause();
           break;
@@ -109,6 +115,9 @@ function createMockVsCode(): VsCodeApi {
           break;
         case 'searchLeetcode':
           setTimeout(() => simulateLeetcodeSearch(msg.query), 300);
+          break;
+        case 'searchNeetcode':
+          setTimeout(() => simulateNeetcodeSearch(msg.query), 300);
           break;
       }
     },
@@ -129,6 +138,14 @@ function simulateLeetcodeSearch(query: string): void {
     ? MOCK_PROBLEMS.filter(p => p.title.toLowerCase().includes(q) || p.frontendId.includes(q))
     : MOCK_PROBLEMS;
   window.dispatchEvent(new MessageEvent('message', { data: { type: 'leetcodeSearchResults', problems } }));
+}
+
+function simulateNeetcodeSearch(query: string): void {
+  const q = query.toLowerCase();
+  const problems = q
+    ? MOCK_PROBLEMS.filter(p => p.title.toLowerCase().includes(q) || p.frontendId.includes(q))
+    : MOCK_PROBLEMS;
+  window.dispatchEvent(new MessageEvent('message', { data: { type: 'neetcodeSearchResults', problems } }));
 }
 
 // ── Export real or mock API ───────────────────────────────────────────────────

@@ -3,6 +3,7 @@ import { TimerViewProvider } from './TimerViewProvider';
 import { VIEW_TYPE, GLOBALSTATE_KEY, CMD_FOCUS_PANEL, LEETCODE_LANGUAGES } from './constants';
 import type { ActiveTask, TaskRecord, WebviewMessage, LeetcodeProblem } from './types';
 import { searchProblems, getProblemDetails, buildFileContent } from './leetcode';
+import { searchProblems as searchNeetcodeProblems, getProblemDetails as getNeetcodeProblemDetails, buildNeetcodeFileContent } from './neetcode';
 
 // Module-level state — single source of truth
 let activeTask: ActiveTask | null = null;
@@ -55,6 +56,15 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       break;
     }
 
+    case 'searchNeetcode': {
+      searchNeetcodeProblems(msg.query)
+        .then(problems => provider.sendHostMessage({ type: 'neetcodeSearchResults', problems }))
+        .catch(err =>
+          provider.sendHostMessage({ type: 'neetcodeError', message: String(err?.message ?? err) }),
+        );
+      break;
+    }
+
     case 'startTask': {
       const taskName = msg.name;
       const plannedSeconds = msg.plannedMinutes * 60;
@@ -76,6 +86,13 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       if (msg.source === 'leetcode' && msg.leetcodeProblem && msg.language) {
         createLeetcodeFile(msg.leetcodeProblem, msg.language).catch(err => {
           console.error('[lap-code] Failed to create LeetCode file:', err);
+        });
+      }
+
+      // For NeetCode tasks: same but under neetcode/ with NeetCode URL
+      if (msg.source === 'neetcode' && msg.neetcodeProblem && msg.language) {
+        createNeetcodeFile(msg.neetcodeProblem, msg.language).catch(err => {
+          console.error('[lap-code] Failed to create NeetCode file:', err);
         });
       }
       break;
@@ -121,6 +138,26 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       break;
     }
   }
+}
+
+async function createNeetcodeFile(problem: LeetcodeProblem, langSlug: string): Promise<void> {
+  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri;
+  if (!workspaceRoot) { return; }
+
+  const lang = LEETCODE_LANGUAGES.find(l => l.slug === langSlug);
+  const ext = lang?.ext ?? 'js';
+
+  const details = await getNeetcodeProblemDetails(problem.slug);
+  const content = buildNeetcodeFileContent(problem, details, langSlug);
+
+  const neetcodeDir = vscode.Uri.joinPath(workspaceRoot, 'neetcode');
+  const fileUri = vscode.Uri.joinPath(neetcodeDir, `${problem.slug}.${ext}`);
+
+  await vscode.workspace.fs.createDirectory(neetcodeDir);
+  await vscode.workspace.fs.writeFile(fileUri, Buffer.from(content, 'utf8'));
+
+  const doc = await vscode.workspace.openTextDocument(fileUri);
+  await vscode.window.showTextDocument(doc, { preview: false });
 }
 
 async function createLeetcodeFile(problem: LeetcodeProblem, langSlug: string): Promise<void> {
