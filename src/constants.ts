@@ -5,6 +5,20 @@ export const CMD_FOCUS_PANEL = 'lap-code.focusPanel';
 export const DEFAULT_SOURCE = 'leetcode' as const;
 export const DEFAULT_LANGUAGE = 'javascript' as const;
 
+import type { TaskSource } from './types';
+
+export interface SourceDisplayConfig {
+  label: string;
+  badgeClass: string;
+}
+
+/** Add a new entry here when a new TaskSource is introduced. */
+export const SOURCE_DISPLAY: Record<TaskSource, SourceDisplayConfig> = {
+  leetcode: { label: 'LeetCode', badgeClass: 'badge--source-lc' },
+  neetcode: { label: 'NeetCode', badgeClass: 'badge--source-nc' },
+  manual:   { label: 'Manual',   badgeClass: 'badge--source-manual' },
+};
+
 export const LEETCODE_LANGUAGES = [
   { slug: 'javascript', label: 'JavaScript', ext: 'js' },
   { slug: 'typescript', label: 'TypeScript', ext: 'ts' },

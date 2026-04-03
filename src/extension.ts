@@ -68,6 +68,7 @@ function handleWebviewMessage(msg: WebviewMessage): void {
     case 'startTask': {
       const taskName = msg.name;
       const plannedSeconds = msg.plannedMinutes * 60;
+      const problem = msg.leetcodeProblem ?? msg.neetcodeProblem;
 
       // Start the timer immediately
       activeTask = {
@@ -76,6 +77,9 @@ function handleWebviewMessage(msg: WebviewMessage): void {
         plannedSeconds,
         elapsedSeconds: 0,
         isPaused: false,
+        source: msg.source,
+        language: msg.language,
+        difficulty: problem?.difficulty,
       };
       startInterval();
       statusBarItem.text = formatStatusBar(activeTask);
@@ -128,6 +132,9 @@ function handleWebviewMessage(msg: WebviewMessage): void {
         elapsedSeconds: activeTask.elapsedSeconds,
         completedAt: Date.now(),
         status: msg.status,
+        source: activeTask.source,
+        language: activeTask.language,
+        difficulty: activeTask.difficulty,
       };
 
       const history = [record, ...loadHistory()];

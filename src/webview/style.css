@@ -292,64 +292,192 @@ select:disabled {
   font-style: italic;
 }
 
+/* ── History task items ─────────────────────────────────────────────────── */
+
 .task-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128, 128, 128, 0.2));
+  padding: 0;
+  border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128,128,128,0.18));
+  border-left: 2.5px solid transparent;
+  transition: border-color 0.1s, background 0.1s;
 }
 
 .task-item:last-child {
   border-bottom: none;
 }
 
-.task-item__info {
+.task-item:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.task-item--pass  { border-left-color: var(--vscode-testing-iconPassed, #73c991); }
+.task-item--fail  { border-left-color: var(--vscode-testing-iconFailed, #f48771); }
+
+.task-item__body {
   flex: 1;
   min-width: 0;
+  padding: 7px 0 7px 8px;
+}
+
+/* Header row: name + pass/fail chip */
+
+.task-item__header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .task-item__name {
+  flex: 1;
+  min-width: 0;
   font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Pass/Fail chip — square-cornered, tight */
+
+.task-chip {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.task-chip--pass {
+  background: var(--vscode-testing-iconPassed, #73c991);
+  color: #000;
+}
+
+.task-chip--fail {
+  background: var(--vscode-testing-iconFailed, #f48771);
+  color: #000;
+}
+
+/* Footer row: time + meta tags */
+
+.task-item__footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
 .task-item__time {
-  font-size: 11px;
-  color: var(--vscode-descriptionForeground);
+  font-size: 10.5px;
   font-variant-numeric: tabular-nums;
-  margin-top: 1px;
+  color: var(--vscode-descriptionForeground);
 }
 
 .task-item__time--overtime {
   color: var(--vscode-testing-iconFailed, #f48771);
 }
 
-.task-item__time-separator {
-  opacity: 0.5;
+.task-item__time-sep {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+  opacity: 0.4;
 }
 
 .task-item__time-planned {
-  opacity: 0.7;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--vscode-descriptionForeground);
+  opacity: 0.55;
 }
 
-.badge {
-  flex-shrink: 0;
+.task-item__sep {
+  color: var(--vscode-descriptionForeground);
+  opacity: 0.3;
   font-size: 10px;
+  margin: 0 1px;
+  user-select: none;
+}
+
+/* ── Micro tags (source / difficulty / language) ────────────────────────── */
+
+.task-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 10px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 2px;
+  line-height: 1.5;
 }
 
-.badge--pass {
-  background: var(--vscode-testing-iconPassed, #73c991);
-  color: #000;
+/* Source tags */
+
+.badge--source-lc {
+  background: rgba(248, 159, 27, 0.18);
+  color: #f89f1b;
+  border: 1px solid rgba(248, 159, 27, 0.35);
 }
 
-.badge--fail {
-  background: var(--vscode-testing-iconFailed, #f48771);
-  color: #000;
+.badge--source-nc {
+  background: rgba(45, 181, 93, 0.15);
+  color: #2db55d;
+  border: 1px solid rgba(45, 181, 93, 0.3);
+}
+
+.badge--source-manual {
+  background: transparent;
+  color: var(--vscode-descriptionForeground);
+  border: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.3));
+}
+
+/* Difficulty tags */
+
+.task-tag--diff-easy   { background: rgba(115, 201, 145, 0.15); color: #73c991; border: 1px solid rgba(115,201,145,0.3); }
+.task-tag--diff-medium { background: rgba(229, 160, 45, 0.15);  color: #e5a02d; border: 1px solid rgba(229,160,45,0.3); }
+.task-tag--diff-hard   { background: rgba(244, 135, 113, 0.15); color: #f48771; border: 1px solid rgba(244,135,113,0.3); }
+
+/* CSS tooltip — used where native title is suppressed (VS Code webview) */
+
+.has-tooltip {
+  position: relative;
+}
+
+.has-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--vscode-editorHoverWidget-background, #252526);
+  color: var(--vscode-editorHoverWidget-foreground, #d4d4d4);
+  border: 1px solid var(--vscode-editorHoverWidget-border, #454545);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  padding: 3px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 200;
+}
+
+.has-tooltip:hover::after {
+  opacity: 1;
+}
+
+/* Language tag */
+
+.task-tag--lang {
+  background: transparent;
+  color: var(--vscode-descriptionForeground);
+  opacity: 0.8;
+  border: none;
+  font-weight: 400;
+  font-size: 9.5px;
+  padding: 0;
 }

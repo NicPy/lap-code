@@ -15,6 +15,9 @@ export interface TaskRecord {
   elapsedSeconds: number;
   completedAt: number;
   status: CompletionStatus;
+  source: TaskSource;
+  language?: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
 }
 
 export interface ActiveTask {
@@ -23,6 +26,9 @@ export interface ActiveTask {
   plannedSeconds: number;
   elapsedSeconds: number;
   isPaused: boolean;
+  source: TaskSource;
+  language?: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
 }
 
 // Webview → Host
