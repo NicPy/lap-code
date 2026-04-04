@@ -11,6 +11,16 @@ function formatTime(totalSeconds: number): string {
   return `${mm}:${ss}`;
 }
 
+function formatCompletedAt(timestampMs: number): string {
+  const date = new Date(timestampMs);
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const hour = date.getHours().toString().padStart(2, '0');
+  const minute = date.getMinutes().toString().padStart(2, '0');
+  return `${month} ${day}, ${year} · ${hour}:${minute}`;
+}
+
 function getLangLabel(slug: string): string {
   return LEETCODE_LANGUAGES.find(l => l.slug === slug)?.label ?? slug;
 }
@@ -50,6 +60,9 @@ export function TaskItem({ task }: Props) {
           {task.language && (
             <span class="task-tag task-tag--lang">{getLangLabel(task.language)}</span>
           )}
+        </div>
+        <div class="task-item__completed-at">
+          {formatCompletedAt(task.completedAt)}
         </div>
       </div>
     </div>

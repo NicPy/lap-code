@@ -283,6 +283,9 @@ select:disabled {
 /* ── History list ───────────────────────────────────────────────────────── */
 
 .history {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 4px;
 }
 
@@ -300,6 +303,7 @@ select:disabled {
   border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128,128,128,0.18));
   border-left: 2.5px solid transparent;
   transition: border-color 0.1s, background 0.1s;
+  cursor: pointer;
 }
 
 .task-item:last-child {
@@ -398,6 +402,13 @@ select:disabled {
   font-size: 10px;
   margin: 0 1px;
   user-select: none;
+}
+
+.task-item__completed-at {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+  opacity: 0.6;
+  margin-top: 3px;
 }
 
 /* ── Micro tags (source / difficulty / language) ────────────────────────── */

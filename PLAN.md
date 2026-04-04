@@ -7,14 +7,14 @@ Work through them in order. Read each section fully before starting.
 
 ## Status Tracker
 
-- [ ] **Task 1** — Previous Tasks UX Polish (gap, timestamp, pointer cursor)
+- [x] **Task 1** — Previous Tasks UX Polish (gap, timestamp, pointer cursor)
 - [ ] **Task 2** — Delete Task (hover trash icon, smooth animation)
 - [ ] **Task 3** — Favourite Flag + Tabs (star icon, All/Favourites tabs)
 - [ ] **Task 4** — Click History Task → Resume as Active (click to swap, Restart button)
 - [ ] **Task 5** — Export (CSV/JSON dropdown, bottom-right button)
 - [ ] **Task 6** — Animated Task Transition (creative timer + name animation)
 
-**Progress:** 0/6 tasks completed
+**Progress:** 1/6 tasks completed
 
 ---
 
