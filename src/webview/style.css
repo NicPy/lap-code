@@ -297,8 +297,26 @@ select:disabled {
 
 /* ── History task items ─────────────────────────────────────────────────── */
 
+.task-item-wrapper {
+  overflow: hidden;
+  border-radius: 3px;
+  transform: translateX(0);
+  opacity: 1;
+  max-height: 200px;
+  transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              max-height 400ms cubic-bezier(0.4, 0, 0.2, 1) 300ms;
+}
+
+.task-item-wrapper--dismissing {
+  transform: translateX(60%);
+  opacity: 0;
+  max-height: 0;
+}
+
 .task-item {
   display: flex;
+  position: relative;
   padding: 0;
   border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128,128,128,0.18));
   border-left: 2.5px solid transparent;
@@ -314,8 +332,131 @@ select:disabled {
   background: var(--vscode-list-hoverBackground);
 }
 
+/* ── Delete icon — pill with backdrop for contrast ───────────────────── */
+
+.task-item__delete {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: var(--vscode-editorWidget-background, #252526);
+  border: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.3));
+  color: var(--vscode-descriptionForeground);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 220ms ease, transform 220ms ease, color 150ms ease,
+              background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  z-index: 10;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+.task-item:hover .task-item__delete {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.task-item__delete:hover {
+  color: var(--vscode-testing-iconFailed, #f48771);
+  background: rgba(244, 135, 113, 0.14);
+  border-color: rgba(244, 135, 113, 0.4);
+  box-shadow: 0 1px 6px rgba(244, 135, 113, 0.18);
+}
+
 .task-item--pass  { border-left-color: var(--vscode-testing-iconPassed, #73c991); }
 .task-item--fail  { border-left-color: var(--vscode-testing-iconFailed, #f48771); }
+
+/* ── Delete confirmation bar — slides open below the card ────────────── */
+
+.task-item__confirm-track {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-item__confirm-track--open {
+  grid-template-rows: 1fr;
+}
+
+.task-item__confirm-bar {
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  background: rgba(244, 135, 113, 0.08);
+  border-left: 2.5px solid var(--vscode-testing-iconFailed, #f48771);
+  border-bottom: 1px solid rgba(244, 135, 113, 0.18);
+}
+
+.task-item__confirm-track--open .task-item__confirm-bar {
+  padding: 7px 10px;
+}
+
+.task-item__confirm-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--vscode-testing-iconFailed, #f48771);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 200ms ease 80ms, transform 200ms ease 80ms;
+}
+
+.task-item__confirm-track--open .task-item__confirm-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.task-item__confirm-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 200ms ease 120ms, transform 200ms ease 120ms;
+}
+
+.task-item__confirm-track--open .task-item__confirm-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.task-item__confirm-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.task-item__confirm-btn--yes {
+  background: var(--vscode-testing-iconFailed, #f48771);
+  color: #000;
+}
+
+.task-item__confirm-btn--yes:hover {
+  background: #f06e52;
+}
+
+.task-item__confirm-btn--no {
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+}
+
+.task-item__confirm-btn--no:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
 
 .task-item__body {
   flex: 1;

@@ -120,6 +120,13 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       break;
     }
 
+    case 'deleteTask': {
+      const history = loadHistory().filter(t => t.id !== msg.id);
+      saveHistory(history);
+      provider.sendSnapshot(activeTask, history);
+      break;
+    }
+
     case 'completeTask': {
       if (!activeTask) { break; }
       clearInterval(timerInterval);

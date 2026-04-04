@@ -39,7 +39,8 @@ export type WebviewMessage =
   | { type: 'completeTask'; status: CompletionStatus }
   | { type: 'webviewReady' }
   | { type: 'searchLeetcode'; query: string }
-  | { type: 'searchNeetcode'; query: string };
+  | { type: 'searchNeetcode'; query: string }
+  | { type: 'deleteTask'; id: string };
 
 // Host → Webview
 export type HostMessage =
