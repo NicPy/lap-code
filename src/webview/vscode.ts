@@ -1,4 +1,4 @@
-import type { WebviewMessage, CompletionStatus, ActiveTask, TaskRecord, LeetcodeProblem } from '@shared/types';
+import type { WebviewMessage, CompletionStatus, ActiveTask, TaskRecord, LeetcodeProblem, TaskSource } from '@shared/types';
 import { applyStateSnapshot, applyTick } from './store';
 
 export type VsCodeApi = {
@@ -18,6 +18,9 @@ const mockHistory: TaskRecord[] = [
     elapsedSeconds: 724,
     completedAt: Date.now() - 86400000,
     status: 'successfully',
+    source: 'leetcode',
+    language: 'javascript',
+    difficulty: 'Easy',
   },
   {
     id: 'seed-2',
@@ -26,6 +29,9 @@ const mockHistory: TaskRecord[] = [
     elapsedSeconds: 3120,
     completedAt: Date.now() - 172800000,
     status: 'failed',
+    source: 'neetcode',
+    language: 'python3',
+    difficulty: 'Medium',
   },
 ];
 
@@ -33,13 +39,22 @@ function simulateSnapshot(): void {
   applyStateSnapshot({ activeTask: mockTask, history: [...mockHistory] });
 }
 
-function simulateStart(name: string, plannedMinutes: number, _slug?: string): void {
+function simulateStart(
+  name: string,
+  plannedMinutes: number,
+  source: TaskSource,
+  language?: string,
+  difficulty?: ActiveTask['difficulty'],
+): void {
   mockTask = {
     id: 'dev-' + Date.now(),
     name,
     plannedSeconds: plannedMinutes * 60,
     elapsedSeconds: 0,
     isPaused: false,
+    source,
+    language,
+    difficulty,
   };
   applyStateSnapshot({ activeTask: mockTask, history: [...mockHistory] });
   clearInterval(mockInterval);
@@ -81,6 +96,9 @@ function simulateComplete(status: CompletionStatus): void {
     elapsedSeconds: mockTask.elapsedSeconds,
     completedAt: Date.now(),
     status,
+    source: mockTask.source,
+    language: mockTask.language,
+    difficulty: mockTask.difficulty,
   };
   mockHistory.unshift(record);
   mockTask = null;
@@ -96,12 +114,18 @@ function createMockVsCode(): VsCodeApi {
           setTimeout(simulateSnapshot, 50);
           break;
         case 'startTask': {
-          const slug = msg.source === 'leetcode'
-            ? msg.leetcodeProblem?.slug
+          const problem = msg.source === 'leetcode'
+            ? msg.leetcodeProblem
             : msg.source === 'neetcode'
-              ? msg.neetcodeProblem?.slug
+              ? msg.neetcodeProblem
               : undefined;
-          setTimeout(() => simulateStart(msg.name, msg.plannedMinutes, slug), 50);
+          setTimeout(() => simulateStart(
+            msg.name,
+            msg.plannedMinutes,
+            msg.source,
+            msg.language,
+            problem?.difficulty,
+          ), 50);
           break;
         }
         case 'pauseTask':
