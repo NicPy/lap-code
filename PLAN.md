@@ -14,8 +14,9 @@ Work through them in order. Read each section fully before starting.
 - [ ] **Task 5** — Export (CSV/JSON dropdown, bottom-right button)
 - [ ] **Task 6** — Animated Task Transition (creative timer + name animation)
 - [ ] **Task 7** — Responsive Design (history container follows tab width)
+- [ ] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
 
-**Progress:** 3/7 tasks completed
+**Progress:** 3/8 tasks completed
 
 ---
 
@@ -227,6 +228,43 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
 
 ---
 
+## Task 8 — Pause-to-History + Auto-pause on VS Code Close
+
+**Goal:** Pausing a task now moves it to history (instead of just freezing the timer in place). A new `'paused'` completion status is added alongside `'successfully'` and `'failed'`. When VS Code is closed while a task is running, the task is automatically paused and saved to history.
+
+### Type changes — `src/types.ts`
+- Add `'paused'` to `CompletionStatus`:
+  ```ts
+  export type CompletionStatus = 'successfully' | 'failed' | 'paused';
+  ```
+
+### Extension host — `src/extension.ts`
+
+**Pause handler (`pauseTask`):**
+- Instead of just setting `isPaused = true`, convert the active task into a `TaskRecord` with `status: 'paused'` and `completedAt: Date.now()`.
+- Prepend it to history, save, clear `activeTask`, stop the interval, hide the status bar.
+- Send snapshot (no active task, updated history).
+
+**`deactivate` function:**
+- If there is an `activeTask` when VS Code closes, save it to history as a `TaskRecord` with `status: 'paused'` and `completedAt: Date.now()`.
+- This ensures no active task data is lost on quit/reload.
+
+**Remove `resumeTask` handler** (no longer needed — resuming a paused task will be handled by Task 4's `resumeHistoryTask`).
+
+### Webview — `src/webview/components/ActiveTaskView.tsx`
+- Remove the Resume button from the controls (pause is now a one-way action that sends the task to history).
+- The Pause button label can stay as "Pause" — clicking it moves the task to history.
+
+### CSS
+- Add a `.task-chip--paused` style for the paused status chip (use a neutral/blue colour, e.g. `var(--vscode-debugIcon-pauseForeground, #75beff)`).
+- Paused tasks in history should look visually distinct — similar treatment to the planned `'suspended'` status from Task 4.
+
+### Notes
+- This changes the semantics of pause: it's no longer a temporary freeze, it's "stop and shelve". Task 4 (resume from history) becomes the way to pick a paused task back up.
+- The webview no longer needs `isPaused` / `isRunning` signals for display — an active task is always running.
+
+---
+
 ## Implementation Order Notes
 
 - Tasks 1–3 are purely additive (new CSS + new messages + type additions).
@@ -234,3 +272,4 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
 - Task 5 depends on Task 4 only if you want `isFavourite` in the export (from Task 3) — make sure the CSV headers and JSON output include it.
 - Task 6 is self-contained and can be done any time after Task 4.
 - Task 7 is self-contained and can be done at any point.
+- Task 8 changes pause semantics significantly — pairs well with Task 4 (resume from history). Consider implementing them together or Task 8 before Task 4.
