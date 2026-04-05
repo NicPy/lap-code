@@ -127,6 +127,15 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       break;
     }
 
+    case 'toggleFavourite': {
+      const history = loadHistory().map(t =>
+        t.id === msg.id ? { ...t, isFavourite: !t.isFavourite } : t,
+      );
+      saveHistory(history);
+      provider.sendSnapshot(activeTask, history);
+      break;
+    }
+
     case 'completeTask': {
       if (!activeTask) { break; }
       clearInterval(timerInterval);

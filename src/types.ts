@@ -18,6 +18,7 @@ export interface TaskRecord {
   source: TaskSource;
   language?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
+  isFavourite?: boolean;
 }
 
 export interface ActiveTask {
@@ -40,7 +41,8 @@ export type WebviewMessage =
   | { type: 'webviewReady' }
   | { type: 'searchLeetcode'; query: string }
   | { type: 'searchNeetcode'; query: string }
-  | { type: 'deleteTask'; id: string };
+  | { type: 'deleteTask'; id: string }
+  | { type: 'toggleFavourite'; id: string };
 
 // Host → Webview
 export type HostMessage =

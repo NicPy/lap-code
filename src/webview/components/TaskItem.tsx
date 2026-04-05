@@ -35,6 +35,11 @@ export function TaskItem({ task }: Props) {
   const isOvertime = task.elapsedSeconds > task.plannedSeconds;
   const sourceConfig = SOURCE_DISPLAY[task.source] ?? { label: task.source, badgeClass: 'badge--source-manual' };
 
+  function handleFavouriteClick(e: MouseEvent) {
+    e.stopPropagation();
+    vscode.postMessage({ type: 'toggleFavourite', id: task.id });
+  }
+
   function handleDeleteClick(e: MouseEvent) {
     e.stopPropagation();
     setConfirmDelete(true);
@@ -61,11 +66,25 @@ export function TaskItem({ task }: Props) {
   return (
     <div ref={wrapperRef} class={`task-item-wrapper ${dismissing ? 'task-item-wrapper--dismissing' : ''}`}>
       <div class={`task-item ${isPass ? 'task-item--pass' : 'task-item--fail'}`}>
-        <button class="task-item__delete" onClick={handleDeleteClick} title="Delete task">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M10 3h3v1h-1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4H3V3h3V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1zM5 4v9h6V4H5zm2-1V2H7v1h2zm0 2h1v7H7V5zm2 0h1v7H9V5z" />
-          </svg>
-        </button>
+        <div class="task-item__actions">
+          <button
+            class={`task-item__favourite ${task.isFavourite ? 'task-item__favourite--active' : ''}`}
+            onClick={handleFavouriteClick}
+            title={task.isFavourite ? 'Unfavourite' : 'Favourite'}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              {task.isFavourite
+                ? <path d="M8 1.23l2.18 4.41 4.87.71-3.52 3.43.83 4.85L8 12.18l-4.36 2.45.83-4.85L1 6.35l4.87-.71L8 1.23z" />
+                : <path d="M8 1.23l2.18 4.41 4.87.71-3.52 3.43.83 4.85L8 12.18l-4.36 2.45.83-4.85L1 6.35l4.87-.71L8 1.23zM8 3.42L6.39 6.68l-3.6.52 2.6 2.54-.62 3.59L8 11.35l3.23 1.98-.62-3.59 2.6-2.54-3.6-.52L8 3.42z" />
+              }
+            </svg>
+          </button>
+          <button class="task-item__delete" onClick={handleDeleteClick} title="Delete task">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M10 3h3v1h-1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4H3V3h3V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1zM5 4v9h6V4H5zm2-1V2H7v1h2zm0 2h1v7H7V5zm2 0h1v7H9V5z" />
+            </svg>
+          </button>
+        </div>
         <div class="task-item__body">
           <div class="task-item__header">
             <span class="task-item__name" title={task.name}>{task.name}</span>
