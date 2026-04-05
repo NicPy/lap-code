@@ -9,12 +9,13 @@ Work through them in order. Read each section fully before starting.
 
 - [x] **Task 1** — Previous Tasks UX Polish (gap, timestamp, pointer cursor)
 - [x] **Task 2** — Delete Task (hover trash icon, smooth animation)
-- [ ] **Task 3** — Favourite Flag + Tabs (star icon, All/Favourites tabs)
+- [x] **Task 3** — Favourite Flag + Tabs (star icon, All/Favourites tabs)
 - [ ] **Task 4** — Click History Task → Resume as Active (click to swap, Restart button)
 - [ ] **Task 5** — Export (CSV/JSON dropdown, bottom-right button)
 - [ ] **Task 6** — Animated Task Transition (creative timer + name animation)
+- [ ] **Task 7** — Responsive Design (history container follows tab width)
 
-**Progress:** 2/6 tasks completed
+**Progress:** 3/7 tasks completed
 
 ---
 
@@ -210,9 +211,26 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
 
 ---
 
+## Task 7 — Responsive Design
+
+**Goal:** The history container (and the entire webview layout) should be fluid and follow the width of the sidebar/tab. Currently the container appears to have a fixed width when the panel is expanded wider.
+
+### Changes
+
+**CSS (`src/webview/style.css`)**
+- Ensure the root `body`, `.history`, task items, and all relevant containers use `width: 100%` / `max-width: 100%` rather than fixed widths.
+- Task item body text (name, footer tags) should wrap or truncate gracefully at any panel width.
+- The form, active task view, and history list should all stretch to fill the available width.
+- Test at narrow (~250px) and wide (~600px+) panel sizes to confirm nothing overflows or stays fixed-width.
+
+**No type or extension host changes needed for this task.**
+
+---
+
 ## Implementation Order Notes
 
 - Tasks 1–3 are purely additive (new CSS + new messages + type additions).
 - Task 4 changes `CompletionStatus` — verify that `task-chip` styles handle `'suspended'` and that the export in Task 5 includes it correctly.
 - Task 5 depends on Task 4 only if you want `isFavourite` in the export (from Task 3) — make sure the CSV headers and JSON output include it.
 - Task 6 is self-contained and can be done any time after Task 4.
+- Task 7 is self-contained and can be done at any point.
