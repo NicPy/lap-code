@@ -255,6 +255,34 @@ select:disabled {
   flex: 1;
 }
 
+.active-task__new {
+  margin-top: 6px;
+}
+
+/* ── Confirm popover (restart) ─────────────────────────────────────────── */
+
+.confirm-popover {
+  background: var(--vscode-input-background);
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 4px;
+}
+
+.confirm-popover__label {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  margin: 0 0 6px;
+}
+
+.confirm-popover__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.confirm-popover__actions button {
+  flex: 1;
+}
+
 /* ── Completion area ────────────────────────────────────────────────────── */
 
 .completion-area {
@@ -449,8 +477,19 @@ select:disabled {
   box-shadow: 0 1px 6px rgba(244, 135, 113, 0.18);
 }
 
-.task-item--pass  { border-left-color: var(--vscode-testing-iconPassed, #73c991); }
-.task-item--fail  { border-left-color: var(--vscode-testing-iconFailed, #f48771); }
+.task-item--pass   { border-left-color: var(--vscode-testing-iconPassed, #73c991); }
+.task-item--fail   { border-left-color: var(--vscode-testing-iconFailed, #f48771); }
+.task-item--paused { border-left-color: var(--vscode-debugIcon-pauseForeground, #75beff); }
+
+.task-item--active {
+  border-left-color: var(--vscode-focusBorder, #007fd4);
+  background: rgba(0, 127, 212, 0.06);
+  cursor: default;
+}
+
+.task-item--active:hover {
+  background: rgba(0, 127, 212, 0.06);
+}
 
 /* ── Delete confirmation bar — slides open below the card ────────────── */
 
@@ -584,6 +623,16 @@ select:disabled {
   color: #000;
 }
 
+.task-chip--paused {
+  background: var(--vscode-debugIcon-pauseForeground, #75beff);
+  color: #000;
+}
+
+.task-chip--active {
+  background: var(--vscode-focusBorder, #007fd4);
+  color: #fff;
+}
+
 /* Footer row: time + meta tags */
 
 .task-item__footer {
@@ -630,6 +679,12 @@ select:disabled {
   color: var(--vscode-descriptionForeground);
   opacity: 0.6;
   margin-top: 3px;
+}
+
+.task-item__completed-at--active {
+  opacity: 1;
+  color: var(--vscode-focusBorder, #007fd4);
+  font-weight: 500;
 }
 
 /* ── Micro tags (source / difficulty / language) ────────────────────────── */
@@ -703,6 +758,57 @@ select:disabled {
 }
 
 /* Language tag */
+
+/* ── Export button ──────────────────────────────────────────────────────── */
+
+.export {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  z-index: 50;
+}
+
+.export__btn {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 3px;
+}
+
+.export__dropdown {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--vscode-editorWidget-background, #252526);
+  border: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.3));
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  overflow: hidden;
+  animation: export-fade-in 150ms ease;
+}
+
+.export__option {
+  font-size: 11px;
+  padding: 6px 20px;
+  background: none;
+  color: var(--vscode-foreground);
+  border: none;
+  border-radius: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.export__option:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+@keyframes export-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Language tag ───────────────────────────────────────────────────────── */
 
 .task-tag--lang {
   background: transparent;

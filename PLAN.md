@@ -10,13 +10,13 @@ Work through them in order. Read each section fully before starting.
 - [x] **Task 1** — Previous Tasks UX Polish (gap, timestamp, pointer cursor)
 - [x] **Task 2** — Delete Task (hover trash icon, smooth animation)
 - [x] **Task 3** — Favourite Flag + Tabs (star icon, All/Favourites tabs)
-- [ ] **Task 4** — Click History Task → Resume as Active (click to swap, Restart button)
-- [ ] **Task 5** — Export (CSV/JSON dropdown, bottom-right button)
+- [x] **Task 4** — Click History Task → Resume as Active (click to swap, Restart button)
+- [x] **Task 5** — Export (CSV/JSON dropdown, bottom-right button)
 - [ ] **Task 6** — Animated Task Transition (creative timer + name animation)
 - [ ] **Task 7** — Responsive Design (history container follows tab width)
-- [ ] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
+- [x] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
 
-**Progress:** 3/8 tasks completed
+**Progress:** 6/8 tasks completed
 
 ---
 

@@ -84,7 +84,22 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       startInterval();
       statusBarItem.text = formatStatusBar(activeTask);
       statusBarItem.show();
-      provider.sendSnapshot(activeTask, loadHistory());
+
+      // Add a history entry so the task appears in the list
+      const newRecord: TaskRecord = {
+        id: activeTask.id,
+        name: activeTask.name,
+        plannedSeconds: activeTask.plannedSeconds,
+        elapsedSeconds: 0,
+        completedAt: 0,
+        status: 'paused',
+        source: activeTask.source,
+        language: activeTask.language,
+        difficulty: activeTask.difficulty,
+      };
+      const history = [newRecord, ...loadHistory()];
+      saveHistory(history);
+      provider.sendSnapshot(activeTask, history);
 
       // For LeetCode tasks: fetch details and create file in the background
       if (msg.source === 'leetcode' && msg.leetcodeProblem && msg.language) {
@@ -116,7 +131,85 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       if (!activeTask) { break; }
       activeTask.isPaused = false;
       startInterval();
+      statusBarItem.text = formatStatusBar(activeTask);
       provider.sendSnapshot(activeTask, loadHistory());
+      break;
+    }
+
+    case 'shelveTask': {
+      if (!activeTask) { break; }
+      clearInterval(timerInterval);
+      timerInterval = undefined;
+      statusBarItem.hide();
+
+      const shelvedRecord: TaskRecord = {
+        id: activeTask.id,
+        name: activeTask.name,
+        plannedSeconds: activeTask.plannedSeconds,
+        elapsedSeconds: activeTask.elapsedSeconds,
+        completedAt: Date.now(),
+        status: 'paused',
+        source: activeTask.source,
+        language: activeTask.language,
+        difficulty: activeTask.difficulty,
+      };
+
+      // Remove the old history entry (task was kept in-place), prepend shelved
+      const history = [shelvedRecord, ...loadHistory().filter(t => t.id !== activeTask!.id)];
+      saveHistory(history);
+      activeTask = null;
+      provider.sendSnapshot(null, history);
+      break;
+    }
+
+    case 'resumeHistoryTask': {
+      let history = loadHistory();
+
+      // If there's already an active task, sync its elapsed back into history
+      if (activeTask) {
+        clearInterval(timerInterval);
+        timerInterval = undefined;
+        history = history.map(t =>
+          t.id === activeTask!.id
+            ? { ...t, elapsedSeconds: activeTask!.elapsedSeconds }
+            : t,
+        );
+      }
+
+      // Find the task (keep it in history at its position)
+      const found = history.find(t => t.id === msg.id);
+      if (!found) { break; }
+      saveHistory(history);
+
+      // Convert to active task — stays paused until user clicks Resume
+      activeTask = {
+        id: found.id,
+        name: found.name,
+        plannedSeconds: found.plannedSeconds,
+        elapsedSeconds: found.elapsedSeconds,
+        isPaused: true,
+        source: found.source,
+        language: found.language,
+        difficulty: found.difficulty,
+      };
+      statusBarItem.text = formatStatusBar(activeTask);
+      statusBarItem.show();
+      provider.sendSnapshot(activeTask, history);
+      break;
+    }
+
+    case 'restartTask': {
+      if (!activeTask) { break; }
+      activeTask.elapsedSeconds = 0;
+      activeTask.isPaused = false;
+      startInterval();
+      statusBarItem.text = formatStatusBar(activeTask);
+      // Sync reset elapsed into history entry
+      const history = loadHistory().map(t =>
+        t.id === activeTask!.id ? { ...t, elapsedSeconds: 0 } : t,
+      );
+      saveHistory(history);
+      provider.sendSnapshot(activeTask, history);
       break;
     }
 
@@ -124,6 +217,49 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       const history = loadHistory().filter(t => t.id !== msg.id);
       saveHistory(history);
       provider.sendSnapshot(activeTask, history);
+      break;
+    }
+
+    case 'exportTasks': {
+      const history = loadHistory();
+      if (history.length === 0) {
+        vscode.window.showInformationMessage('No tasks to export.');
+        break;
+      }
+      const format = msg.format;
+      let content: string;
+      let defaultName: string;
+      let filters: Record<string, string[]>;
+
+      if (format === 'json') {
+        content = JSON.stringify(history, null, 2);
+        defaultName = 'lap-code-export.json';
+        filters = { 'JSON': ['json'] };
+      } else {
+        const headers = 'id,name,plannedSeconds,elapsedSeconds,completedAt,status,source,language,difficulty,isFavourite';
+        const rows = history.map(t => [
+          t.id,
+          `"${(t.name ?? '').replace(/"/g, '""')}"`,
+          t.plannedSeconds,
+          t.elapsedSeconds,
+          t.completedAt,
+          t.status,
+          t.source,
+          t.language ?? '',
+          t.difficulty ?? '',
+          t.isFavourite ? 'true' : 'false',
+        ].join(','));
+        content = [headers, ...rows].join('\n');
+        defaultName = 'lap-code-export.csv';
+        filters = { 'CSV': ['csv'] };
+      }
+
+      vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file(defaultName), filters }).then(uri => {
+        if (!uri) { return; }
+        vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf8')).then(() => {
+          vscode.window.showInformationMessage(`Exported ${history.length} tasks to ${uri.fsPath}`);
+        });
+      });
       break;
     }
 
@@ -153,7 +289,8 @@ function handleWebviewMessage(msg: WebviewMessage): void {
         difficulty: activeTask.difficulty,
       };
 
-      const history = [record, ...loadHistory()];
+      // Remove the old history entry (task was kept in-place), prepend completed
+      const history = [record, ...loadHistory().filter(t => t.id !== activeTask!.id)];
       saveHistory(history);
       activeTask = null;
       statusBarItem.hide();
@@ -241,4 +378,16 @@ function generateId(): string {
 
 export function deactivate(): void {
   clearInterval(timerInterval);
+  timerInterval = undefined;
+
+  // Auto-pause running task — update its history entry in-place
+  if (activeTask) {
+    const id = activeTask.id;
+    const elapsed = activeTask.elapsedSeconds;
+    const history = loadHistory().map(t =>
+      t.id === id ? { ...t, elapsedSeconds: elapsed, completedAt: Date.now(), status: 'paused' as const } : t,
+    );
+    saveHistory(history);
+    activeTask = null;
+  }
 }

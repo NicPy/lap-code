@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { history } from '../store';
+import { history, activeTask } from '../store';
 import { TaskItem } from './TaskItem';
 
 type Tab = 'all' | 'favourites';
@@ -7,6 +7,7 @@ type Tab = 'all' | 'favourites';
 export function HistoryList() {
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const tasks = history.value;
+  const activeId = activeTask.value?.id ?? null;
   const filtered = activeTab === 'favourites' ? tasks.filter(t => t.isFavourite) : tasks;
 
   return (
@@ -30,7 +31,9 @@ export function HistoryList() {
           {activeTab === 'favourites' ? 'No favourite tasks yet.' : 'No completed tasks yet.'}
         </p>
       ) : (
-        filtered.map((task) => <TaskItem key={task.id} task={task} />)
+        filtered.map((task) => (
+          <TaskItem key={task.id} task={task} isActive={task.id === activeId} />
+        ))
       )}
     </div>
   );

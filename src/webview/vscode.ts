@@ -56,6 +56,18 @@ function simulateStart(
     language,
     difficulty,
   };
+  // Add history entry for the new task
+  mockHistory.unshift({
+    id: mockTask.id,
+    name: mockTask.name,
+    plannedSeconds: mockTask.plannedSeconds,
+    elapsedSeconds: 0,
+    completedAt: 0,
+    status: 'paused',
+    source: mockTask.source,
+    language: mockTask.language,
+    difficulty: mockTask.difficulty,
+  });
   applyStateSnapshot({ activeTask: mockTask, history: [...mockHistory] });
   clearInterval(mockInterval);
   mockInterval = setInterval(() => {
@@ -89,7 +101,10 @@ function simulateComplete(status: CompletionStatus): void {
   if (!mockTask) { return; }
   clearInterval(mockInterval);
   mockInterval = undefined;
-  const record: TaskRecord = {
+  // Remove old entry, prepend completed version
+  const idx = mockHistory.findIndex(t => t.id === mockTask!.id);
+  if (idx !== -1) { mockHistory.splice(idx, 1); }
+  mockHistory.unshift({
     id: mockTask.id,
     name: mockTask.name,
     plannedSeconds: mockTask.plannedSeconds,
@@ -99,10 +114,67 @@ function simulateComplete(status: CompletionStatus): void {
     source: mockTask.source,
     language: mockTask.language,
     difficulty: mockTask.difficulty,
-  };
-  mockHistory.unshift(record);
+  });
   mockTask = null;
   applyStateSnapshot({ activeTask: null, history: [...mockHistory] });
+}
+
+function simulateShelve(): void {
+  if (!mockTask) { return; }
+  clearInterval(mockInterval);
+  mockInterval = undefined;
+  // Remove old entry, prepend updated shelved version
+  const idx = mockHistory.findIndex(t => t.id === mockTask!.id);
+  if (idx !== -1) { mockHistory.splice(idx, 1); }
+  mockHistory.unshift({
+    id: mockTask.id,
+    name: mockTask.name,
+    plannedSeconds: mockTask.plannedSeconds,
+    elapsedSeconds: mockTask.elapsedSeconds,
+    completedAt: Date.now(),
+    status: 'paused',
+    source: mockTask.source,
+    language: mockTask.language,
+    difficulty: mockTask.difficulty,
+  });
+  mockTask = null;
+  applyStateSnapshot({ activeTask: null, history: [...mockHistory] });
+}
+
+function simulateResumeHistory(id: string): void {
+  // Sync current active task's elapsed back into history
+  if (mockTask) {
+    clearInterval(mockInterval);
+    mockInterval = undefined;
+    const old = mockHistory.find(t => t.id === mockTask!.id);
+    if (old) { old.elapsedSeconds = mockTask.elapsedSeconds; }
+  }
+  // Find the task (keep it in history at its position)
+  const found = mockHistory.find(t => t.id === id);
+  if (!found) { return; }
+  mockTask = {
+    id: found.id,
+    name: found.name,
+    plannedSeconds: found.plannedSeconds,
+    elapsedSeconds: found.elapsedSeconds,
+    isPaused: true,
+    source: found.source,
+    language: found.language,
+    difficulty: found.difficulty,
+  };
+  applyStateSnapshot({ activeTask: mockTask, history: [...mockHistory] });
+}
+
+function simulateDelete(id: string): void {
+  const idx = mockHistory.findIndex(t => t.id === id);
+  if (idx !== -1) { mockHistory.splice(idx, 1); }
+  applyStateSnapshot({ activeTask: mockTask, history: [...mockHistory] });
+}
+
+function simulateToggleFavourite(id: string): void {
+  const task = mockHistory.find(t => t.id === id);
+  if (task) { task.isFavourite = !task.isFavourite; }
+  applyStateSnapshot({ activeTask: mockTask, history: [...mockHistory] });
 }
 
 function createMockVsCode(): VsCodeApi {
@@ -136,6 +208,21 @@ function createMockVsCode(): VsCodeApi {
           break;
         case 'completeTask':
           simulateComplete(msg.status);
+          break;
+        case 'shelveTask':
+          simulateShelve();
+          break;
+        case 'resumeHistoryTask':
+          simulateResumeHistory(msg.id);
+          break;
+        case 'deleteTask':
+          simulateDelete(msg.id);
+          break;
+        case 'toggleFavourite':
+          simulateToggleFavourite(msg.id);
+          break;
+        case 'exportTasks':
+          console.log(`[mock-vscode] Export as ${msg.format} — would open save dialog`);
           break;
         case 'searchLeetcode':
           setTimeout(() => simulateLeetcodeSearch(msg.query), 300);

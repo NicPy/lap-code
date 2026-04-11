@@ -19,6 +19,7 @@ export function ActiveTaskView() {
   const task = activeTask.value;
   const paused = isPaused.value;
   const [showComplete, setShowComplete] = useState(false);
+  const [showRestart, setShowRestart] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<CompletionStatus>('successfully');
 
   if (!task) { return null; }
@@ -33,6 +34,7 @@ export function ActiveTaskView() {
   function handleToggleComplete() {
     const opening = !showComplete;
     setShowComplete(opening);
+    setShowRestart(false);
     if (opening && !paused) {
       vscode.postMessage({ type: 'pauseTask' });
     } else if (!opening && paused) {
@@ -43,6 +45,21 @@ export function ActiveTaskView() {
   function handleSubmitComplete() {
     vscode.postMessage({ type: 'completeTask', status: selectedStatus });
     setShowComplete(false);
+  }
+
+  function handleToggleRestart() {
+    const opening = !showRestart;
+    setShowRestart(opening);
+    setShowComplete(false);
+  }
+
+  function handleConfirmRestart() {
+    vscode.postMessage({ type: 'restartTask' });
+    setShowRestart(false);
+  }
+
+  function handleStartNewTask() {
+    vscode.postMessage({ type: 'shelveTask' });
   }
 
   return (
@@ -58,10 +75,31 @@ export function ActiveTaskView() {
         <button class="btn-secondary" onClick={handlePauseResume}>
           {paused ? 'Resume' : 'Pause'}
         </button>
+        <button class="btn-secondary" onClick={handleToggleRestart}>
+          Restart
+        </button>
         <button class="btn-primary" onClick={handleToggleComplete}>
           Complete
         </button>
       </div>
+
+      <button class="btn-secondary btn-full active-task__new" onClick={handleStartNewTask}>
+        Start New Task
+      </button>
+
+      {showRestart && (
+        <div class="confirm-popover">
+          <p class="confirm-popover__label">Restart from 0?</p>
+          <div class="confirm-popover__actions">
+            <button class="btn-primary" onClick={handleConfirmRestart}>
+              Confirm
+            </button>
+            <button class="btn-secondary" onClick={() => setShowRestart(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {showComplete && (
         <div class="completion-area">

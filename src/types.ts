@@ -1,4 +1,4 @@
-export type CompletionStatus = 'successfully' | 'failed';
+export type CompletionStatus = 'successfully' | 'failed' | 'paused';
 export type TaskSource = 'manual' | 'leetcode' | 'neetcode';
 
 export interface LeetcodeProblem {
@@ -42,7 +42,11 @@ export type WebviewMessage =
   | { type: 'searchLeetcode'; query: string }
   | { type: 'searchNeetcode'; query: string }
   | { type: 'deleteTask'; id: string }
-  | { type: 'toggleFavourite'; id: string };
+  | { type: 'toggleFavourite'; id: string }
+  | { type: 'shelveTask' }
+  | { type: 'resumeHistoryTask'; id: string }
+  | { type: 'restartTask' }
+  | { type: 'exportTasks'; format: 'csv' | 'json' };
 
 // Host → Webview
 export type HostMessage =
