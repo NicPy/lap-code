@@ -218,6 +218,7 @@ select:disabled {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  animation: task-enter 300ms ease-out;
 }
 
 .active-task__planned {
@@ -225,6 +226,7 @@ select:disabled {
   color: var(--vscode-descriptionForeground);
   opacity: 0.7;
   margin: 0 0 10px;
+  animation: task-enter 300ms ease-out;
 }
 
 .active-task__timer {
@@ -235,6 +237,7 @@ select:disabled {
   line-height: 1;
   margin: 0 0 14px;
   color: var(--vscode-foreground);
+  animation: timer-enter 300ms ease-out;
 }
 
 .active-task__timer--paused {
@@ -806,6 +809,18 @@ select:disabled {
 @keyframes export-fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Task transition animations ────────────────────────────────────────── */
+
+@keyframes task-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes timer-enter {
+  from { opacity: 0; transform: translateY(6px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── Language tag ───────────────────────────────────────────────────────── */

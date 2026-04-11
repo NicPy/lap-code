@@ -64,10 +64,10 @@ export function ActiveTaskView() {
 
   return (
     <div class="active-task">
-      <p class="active-task__name">{task.name}</p>
-      <p class="active-task__planned">{formatPlanned(task.plannedSeconds)}</p>
+      <p class="active-task__name" key={`name-${task.id}`}>{task.name}</p>
+      <p class="active-task__planned" key={`planned-${task.id}`}>{formatPlanned(task.plannedSeconds)}</p>
 
-      <div class={`active-task__timer ${paused ? 'active-task__timer--paused' : ''} ${isOvertime ? 'active-task__timer--overtime' : ''}`}>
+      <div key={`timer-${task.id}`} class={`active-task__timer ${paused ? 'active-task__timer--paused' : ''} ${isOvertime ? 'active-task__timer--overtime' : ''}`}>
         {formatCountdown(remaining)}
       </div>
 
