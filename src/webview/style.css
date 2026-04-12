@@ -834,6 +834,12 @@ select:disabled {
   background: var(--vscode-list-hoverBackground);
 }
 
+.export__divider {
+  height: 1px;
+  background: var(--vscode-widget-border, rgba(128,128,128,0.3));
+  margin: 2px 0;
+}
+
 @keyframes export-fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }

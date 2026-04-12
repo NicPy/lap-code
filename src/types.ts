@@ -46,7 +46,8 @@ export type WebviewMessage =
   | { type: 'shelveTask' }
   | { type: 'resumeHistoryTask'; id: string }
   | { type: 'restartTask' }
-  | { type: 'exportTasks'; format: 'csv' | 'json' };
+  | { type: 'exportTasks'; format: 'csv' | 'json' }
+  | { type: 'importTasks' };
 
 // Host → Webview
 export type HostMessage =

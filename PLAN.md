@@ -16,7 +16,9 @@ Work through them in order. Read each section fully before starting.
 - [x] **Task 7** — Responsive Design (history container follows tab width)
 - [x] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
 
-**Progress:** 8/8 tasks completed ✓
+- [x] **Task 9** — Import Tasks (auto-detect CSV/JSON, merge into history)
+
+**Progress:** 9/9 tasks completed ✓
 
 ---
 

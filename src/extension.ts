@@ -269,6 +269,11 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       break;
     }
 
+    case 'importTasks': {
+      handleImportTasks();
+      break;
+    }
+
     case 'toggleFavourite': {
       const history = loadHistory().map(t =>
         t.id === msg.id ? { ...t, isFavourite: !t.isFavourite } : t,
@@ -376,6 +381,126 @@ function loadHistory(): TaskRecord[] {
 
 function saveHistory(history: TaskRecord[]): void {
   extensionContext.globalState.update(GLOBALSTATE_KEY, history);
+}
+
+// ── Import ────────────────────────────────────────────────────────────────────
+
+const VALID_STATUSES: ReadonlySet<string> = new Set(['successfully', 'failed', 'paused']);
+const VALID_SOURCES: ReadonlySet<string> = new Set(['manual', 'leetcode', 'neetcode']);
+const VALID_DIFFICULTIES: ReadonlySet<string> = new Set(['Easy', 'Medium', 'Hard']);
+
+function sanitiseRecord(raw: Record<string, unknown>): TaskRecord | null {
+  const id = String(raw.id ?? '');
+  const name = String(raw.name ?? '');
+  if (!id || !name) { return null; }
+
+  const status = VALID_STATUSES.has(String(raw.status)) ? String(raw.status) as TaskRecord['status'] : 'paused';
+  const source = VALID_SOURCES.has(String(raw.source)) ? String(raw.source) as TaskRecord['source'] : 'manual';
+  const diff = String(raw.difficulty ?? '');
+  const lang = String(raw.language ?? '');
+
+  return {
+    id,
+    name,
+    plannedSeconds: Math.max(0, parseInt(String(raw.plannedSeconds), 10) || 0),
+    elapsedSeconds: Math.max(0, parseInt(String(raw.elapsedSeconds), 10) || 0),
+    completedAt: parseInt(String(raw.completedAt), 10) || Date.now(),
+    status,
+    source,
+    language: lang || undefined,
+    difficulty: VALID_DIFFICULTIES.has(diff) ? diff as TaskRecord['difficulty'] : undefined,
+    isFavourite: String(raw.isFavourite) === 'true',
+  };
+}
+
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { current += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { current += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',') { result.push(current); current = ''; }
+      else { current += ch; }
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function parseJSON(raw: string): TaskRecord[] {
+  const parsed = JSON.parse(raw);
+  if (!Array.isArray(parsed)) { throw new Error('Expected a JSON array'); }
+  const results: TaskRecord[] = [];
+  for (const entry of parsed) {
+    if (typeof entry !== 'object' || entry === null) { continue; }
+    const record = sanitiseRecord(entry);
+    if (record) { results.push(record); }
+  }
+  return results;
+}
+
+function parseCSV(raw: string): TaskRecord[] {
+  const lines = raw.split('\n').filter(l => l.trim());
+  if (lines.length < 2) { throw new Error('CSV file has no data rows'); }
+  const headers = lines[0].split(',').map(h => h.trim());
+  const results: TaskRecord[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseCSVLine(lines[i]);
+    const obj: Record<string, string> = {};
+    headers.forEach((h, idx) => { obj[h] = values[idx]?.trim() ?? ''; });
+    const record = sanitiseRecord(obj);
+    if (record) { results.push(record); }
+  }
+  return results;
+}
+
+function detectFormat(raw: string): 'json' | 'csv' {
+  const trimmed = raw.trimStart();
+  return trimmed.startsWith('[') || trimmed.startsWith('{') ? 'json' : 'csv';
+}
+
+async function handleImportTasks(): Promise<void> {
+  const uris = await vscode.window.showOpenDialog({
+    canSelectMany: false,
+    filters: { 'Lap Code Export': ['json', 'csv'] },
+  });
+  if (!uris || uris.length === 0) { return; }
+
+  const raw = Buffer.from(await vscode.workspace.fs.readFile(uris[0])).toString('utf8');
+
+  let imported: TaskRecord[];
+  try {
+    const format = detectFormat(raw);
+    imported = format === 'json' ? parseJSON(raw) : parseCSV(raw);
+  } catch (err: any) {
+    vscode.window.showErrorMessage(`Import failed: ${err.message}`);
+    return;
+  }
+
+  if (imported.length === 0) {
+    vscode.window.showInformationMessage('No valid tasks found in file.');
+    return;
+  }
+
+  const history = loadHistory();
+  const existingIds = new Set(history.map(t => t.id));
+  const newTasks = imported.filter(t => !existingIds.has(t.id));
+
+  if (newTasks.length === 0) {
+    vscode.window.showInformationMessage('All tasks already exist in history.');
+    return;
+  }
+
+  const merged = [...history, ...newTasks];
+  saveHistory(merged);
+  provider.sendSnapshot(activeTask, merged);
+  vscode.window.showInformationMessage(`Imported ${newTasks.length} task(s).`);
 }
 
 function generateId(): string {

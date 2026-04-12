@@ -17,10 +17,15 @@ export function ExportButton() {
     return () => document.removeEventListener('click', handleClick, true);
   }, [open]);
 
-  if (history.value.length === 0) { return null; }
+  const hasHistory = history.value.length > 0;
 
   function handleExport(format: 'csv' | 'json') {
     vscode.postMessage({ type: 'exportTasks', format });
+    setOpen(false);
+  }
+
+  function handleImport() {
+    vscode.postMessage({ type: 'importTasks' });
     setOpen(false);
   }
 
@@ -28,15 +33,17 @@ export function ExportButton() {
     <div class="export" ref={ref}>
       {open && (
         <div class="export__dropdown">
-          <button class="export__option" onClick={() => handleExport('csv')}>CSV</button>
-          <button class="export__option" onClick={() => handleExport('json')}>JSON</button>
+          {hasHistory && <button class="export__option" onClick={() => handleExport('csv')}>Export CSV</button>}
+          {hasHistory && <button class="export__option" onClick={() => handleExport('json')}>Export JSON</button>}
+          {hasHistory && <div class="export__divider" />}
+          <button class="export__option" onClick={handleImport}>Import…</button>
         </div>
       )}
       <button
         class="export__btn btn-secondary"
         onClick={() => setOpen(!open)}
       >
-        Export
+        Export / Import
       </button>
     </div>
   );
