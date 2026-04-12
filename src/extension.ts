@@ -91,7 +91,7 @@ function handleWebviewMessage(msg: WebviewMessage): void {
         name: activeTask.name,
         plannedSeconds: activeTask.plannedSeconds,
         elapsedSeconds: 0,
-        completedAt: 0,
+        completedAt: Date.now(),
         status: 'paused',
         source: activeTask.source,
         language: activeTask.language,
@@ -123,7 +123,13 @@ function handleWebviewMessage(msg: WebviewMessage): void {
       clearInterval(timerInterval);
       timerInterval = undefined;
       statusBarItem.text = formatStatusBar(activeTask);
-      provider.sendSnapshot(activeTask, loadHistory());
+      const history = loadHistory().map(t =>
+        t.id === activeTask!.id
+          ? { ...t, elapsedSeconds: activeTask!.elapsedSeconds, completedAt: Date.now() }
+          : t,
+      );
+      saveHistory(history);
+      provider.sendSnapshot(activeTask, history);
       break;
     }
 
@@ -171,7 +177,7 @@ function handleWebviewMessage(msg: WebviewMessage): void {
         timerInterval = undefined;
         history = history.map(t =>
           t.id === activeTask!.id
-            ? { ...t, elapsedSeconds: activeTask!.elapsedSeconds }
+            ? { ...t, elapsedSeconds: activeTask!.elapsedSeconds, completedAt: !activeTask!.isPaused ? Date.now() : t.completedAt }
             : t,
         );
       }
