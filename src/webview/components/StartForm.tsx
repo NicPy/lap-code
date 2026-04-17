@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'preact/hooks';
 import { vscode } from '../vscode';
 import type { LeetcodeProblem, TaskSource } from '@shared/types';
 import { DEFAULT_SOURCE, DEFAULT_LANGUAGE, LEETCODE_LANGUAGES } from '@shared/constants';
+import { applyClass } from '../utils/applyClass';
 
 // ── Debounce helper ────────────────────────────────────────────────────────────
 
@@ -144,7 +145,7 @@ function ProblemCombobox({ onSelect, searchMsg, resultsMsg, errorMsg }: ProblemC
             <li
               key={p.slug}
               role="option"
-              class={`combobox__option${i === focusedIndex ? ' combobox__option--focused' : ''}`}
+              class={applyClass('combobox__option', { 'combobox__option--focused': i === focusedIndex })}
               onMouseDown={() => selectProblem(p)}
               onMouseEnter={() => setFocusedIndex(i)}
             >

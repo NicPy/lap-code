@@ -3,6 +3,7 @@ import type { TaskRecord } from '@shared/types';
 import { SOURCE_DISPLAY, LEETCODE_LANGUAGES } from '@shared/constants';
 import { activeTask } from '../store';
 import { vscode } from '../vscode';
+import { applyClass } from '../utils/applyClass';
 
 interface Props {
   task: TaskRecord;
@@ -76,15 +77,23 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
   }
 
   return (
-    <div ref={wrapperRef} class={`task-item-wrapper ${dismissing ? 'task-item-wrapper--dismissing' : ''} ${isEntering ? 'task-item-wrapper--entering' : ''}`}>
+    <div ref={wrapperRef} class={applyClass('task-item-wrapper', {
+      'task-item-wrapper--dismissing': dismissing,
+      'task-item-wrapper--entering': isEntering,
+    })}>
       <div
-        class={`task-item ${isActive ? 'task-item--active' : isPaused ? 'task-item--paused' : isPass ? 'task-item--pass' : 'task-item--fail'}`}
+        class={applyClass('task-item', {
+          'task-item--active': isActive,
+          'task-item--paused': !isActive && isPaused,
+          'task-item--pass': !isActive && !isPaused && isPass,
+          'task-item--fail': !isActive && !isPaused && !isPass,
+        })}
         onClick={handleCardClick}
       >
         {!isActive && (
           <div class="task-item__actions">
             <button
-              class={`task-item__favourite ${task.isFavourite ? 'task-item__favourite--active' : ''}`}
+              class={applyClass('task-item__favourite', { 'task-item__favourite--active': task.isFavourite })}
               onClick={handleFavouriteClick}
               title={task.isFavourite ? 'Unfavourite' : 'Favourite'}
             >
@@ -105,12 +114,17 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
         <div class="task-item__body">
           <div class="task-item__header">
             <span class="task-item__name" title={task.name}>{task.name}</span>
-            <span class={`task-chip ${isActive ? 'task-chip--active' : isPaused ? 'task-chip--paused' : isPass ? 'task-chip--pass' : 'task-chip--fail'}`}>
+            <span class={applyClass('task-chip', {
+              'task-chip--active': isActive,
+              'task-chip--paused': !isActive && isPaused,
+              'task-chip--pass': !isActive && !isPaused && isPass,
+              'task-chip--fail': !isActive && !isPaused && !isPass,
+            })}>
               {isActive ? 'Active' : isPaused ? 'Paused' : isPass ? 'Pass' : 'Fail'}
             </span>
           </div>
           <div class="task-item__footer">
-            <span class={`task-item__time ${isOvertime ? 'task-item__time--overtime' : ''}`}>
+            <span class={applyClass('task-item__time', { 'task-item__time--overtime': isOvertime })}>
               {formatTime(elapsed)}
             </span>
             <span class="task-item__time-sep">/</span>
@@ -121,7 +135,7 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
             <span class={`task-tag ${sourceConfig.badgeClass}`}>{sourceConfig.label}</span>
             {task.difficulty && (
               <span
-                class={`task-tag task-tag--diff-${task.difficulty.toLowerCase()} has-tooltip`}
+                class={applyClass('task-tag', `task-tag--diff-${task.difficulty.toLowerCase()}`, 'has-tooltip')}
                 data-tooltip={task.difficulty}
               >
                 {task.difficulty[0]}
@@ -144,7 +158,7 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
       </div>
 
       {/* Confirmation bar — slides open below the card (not for active task) */}
-      {!isActive && <div class={`task-item__confirm-track ${confirmDelete ? 'task-item__confirm-track--open' : ''}`}>
+      {!isActive && <div class={applyClass('task-item__confirm-track', { 'task-item__confirm-track--open': confirmDelete })}>
         <div class="task-item__confirm-bar">
           <span class="task-item__confirm-label">Delete this task?</span>
           <div class="task-item__confirm-actions">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { history, activeTask } from '../store';
 import { TaskItem } from './TaskItem';
+import { applyClass } from '../utils/applyClass';
 
 type Tab = 'all' | 'favourites';
 
@@ -46,13 +47,13 @@ export function HistoryList() {
     <div class="history-section">
       <div class="history-tabs">
         <button
-          class={`history-tab ${activeTab === 'all' ? 'history-tab--active' : ''}`}
+          class={applyClass('history-tab', { 'history-tab--active': activeTab === 'all' })}
           onClick={() => setActiveTab('all')}
         >
           All
         </button>
         <button
-          class={`history-tab ${activeTab === 'favourites' ? 'history-tab--active' : ''}`}
+          class={applyClass('history-tab', { 'history-tab--active': activeTab === 'favourites' })}
           onClick={() => setActiveTab('favourites')}
         >
           Favourites

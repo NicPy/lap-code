@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import type { CompletionStatus } from '@shared/types';
 import { activeTask, isPaused } from '../store';
 import { vscode } from '../vscode';
+import { applyClass } from '../utils/applyClass';
 
 function formatCountdown(remainingSeconds: number): string {
   const abs = Math.abs(remainingSeconds);
@@ -67,7 +68,10 @@ export function ActiveTaskView() {
       <p class="active-task__name" key={`name-${task.id}`}>{task.name}</p>
       <p class="active-task__planned" key={`planned-${task.id}`}>{formatPlanned(task.plannedSeconds)}</p>
 
-      <div key={`timer-${task.id}`} class={`active-task__timer ${paused ? 'active-task__timer--paused' : ''} ${isOvertime ? 'active-task__timer--overtime' : ''}`}>
+      <div key={`timer-${task.id}`} class={applyClass('active-task__timer', {
+        'active-task__timer--paused': paused,
+        'active-task__timer--overtime': isOvertime,
+      })}>
         {formatCountdown(remaining)}
       </div>
 
