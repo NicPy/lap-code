@@ -17,8 +17,9 @@ Work through them in order. Read each section fully before starting.
 - [x] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
 
 - [x] **Task 9** — Import Tasks (auto-detect CSV/JSON, merge into history)
+- [ ] **Task 10** — Forgotten Task / Idle Detection — **revisit next.** Full analysis, product options, VS Code API survey, and recommended direction in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
 
-**Progress:** 9/9 tasks completed ✓
+**Progress:** 9/10 tasks completed
 
 ---
 
