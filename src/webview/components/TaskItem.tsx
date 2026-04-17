@@ -7,6 +7,7 @@ import { vscode } from '../vscode';
 interface Props {
   task: TaskRecord;
   isActive?: boolean;
+  isEntering?: boolean;
 }
 
 function formatTime(totalSeconds: number): string {
@@ -29,7 +30,7 @@ function getLangLabel(slug: string): string {
   return LEETCODE_LANGUAGES.find(l => l.slug === slug)?.label ?? slug;
 }
 
-export function TaskItem({ task, isActive }: Props) {
+export function TaskItem({ task, isActive, isEntering }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [dismissing, setDismissing] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -75,7 +76,7 @@ export function TaskItem({ task, isActive }: Props) {
   }
 
   return (
-    <div ref={wrapperRef} class={`task-item-wrapper ${dismissing ? 'task-item-wrapper--dismissing' : ''}`}>
+    <div ref={wrapperRef} class={`task-item-wrapper ${dismissing ? 'task-item-wrapper--dismissing' : ''} ${isEntering ? 'task-item-wrapper--entering' : ''}`}>
       <div
         class={`task-item ${isActive ? 'task-item--active' : isPaused ? 'task-item--paused' : isPass ? 'task-item--pass' : 'task-item--fail'}`}
         onClick={handleCardClick}

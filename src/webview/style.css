@@ -437,6 +437,36 @@ select:disabled {
   max-height: 0;
 }
 
+.task-item-wrapper--entering {
+  animation: task-item-enter 550ms cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top center;
+}
+
+.task-item-wrapper--entering .task-item {
+  animation: task-item-enter-flash 900ms ease-out;
+}
+
+@keyframes task-item-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    max-height: 0;
+  }
+  60% {
+    max-height: 200px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    max-height: 200px;
+  }
+}
+
+@keyframes task-item-enter-flash {
+  0%   { background: color-mix(in srgb, var(--vscode-list-activeSelectionBackground, #094771) 35%, transparent); }
+  100% { background: transparent; }
+}
+
 .task-item {
   display: flex;
   position: relative;
