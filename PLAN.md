@@ -18,8 +18,10 @@ Work through them in order. Read each section fully before starting.
 
 - [x] **Task 9** — Import Tasks (auto-detect CSV/JSON, merge into history)
 - [ ] **Task 10** — Forgotten Task / Idle Detection — **revisit next.** Full analysis, product options, VS Code API survey, and recommended direction in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
+- [ ] **Task 11** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing/changed).
+- [ ] **Task 12** — Revisit logic for dashboard / statistics / make-complete review.
 
-**Progress:** 9/10 tasks completed
+**Progress:** 9/12 tasks completed
 
 ---
 
@@ -265,6 +267,67 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
 ### Notes
 - This changes the semantics of pause: it's no longer a temporary freeze, it's "stop and shelve". Task 4 (resume from history) becomes the way to pick a paused task back up.
 - The webview no longer needs `isPaused` / `isRunning` signals for display — an active task is always running.
+
+---
+
+## Task 11 — Open-on-click: Task → Associated File
+
+**Goal:** When a task is added, the extension creates (or records a reference to) a file tied to that task. Clicking the task anywhere in the UI opens that file in an editor. If the file was deleted, moved, or its contents changed meaningfully since creation, do nothing (silent no-op — no error toast).
+
+### Open questions to resolve before implementing
+- **Where is the file created?** Workspace root? A dedicated `.lap-code/` folder? User-configurable?
+- **What's in the file?** Empty scratch file named after the task? Template with the task name as a comment header? Language-specific (e.g. `.py`, `.ts`) based on the task's `language` field?
+- **What does "changed" mean?** Store a hash (sha256 of contents at creation) on `TaskRecord` and compare on click? Or just check existence + mtime?
+- **Interaction with Task 4** (click-to-resume): does clicking now both resume *and* open the file, or does opening replace resume? Likely: single click opens file, existing resume-on-click needs a new affordance (dedicated "resume" button on hover, or double-click).
+
+### Type changes — `src/types.ts`
+- Add to `TaskRecord` / `ActiveTask`:
+  ```ts
+  filePath?: string;       // absolute or workspace-relative path
+  fileHash?: string;       // sha256 of initial contents, for change detection
+  ```
+- Add new `WebviewMessage` variant:
+  ```ts
+  | { type: 'openTaskFile'; id: string }
+  ```
+
+### Extension host — `src/extension.ts`
+- **On task start:** create the file (if configured to), compute hash of its initial contents, store `filePath` + `fileHash` on the active task.
+- **Handle `openTaskFile`:**
+  1. Look up the task (active or history) by `id`.
+  2. If no `filePath` → no-op.
+  3. `vscode.workspace.fs.stat` the path — if missing → no-op.
+  4. Read file, recompute hash, compare to stored `fileHash` — if different → no-op.
+  5. Otherwise `vscode.window.showTextDocument(vscode.Uri.file(filePath))`.
+
+### Webview
+- `TaskItem.tsx` click handler (and equivalent on `ActiveTaskView`) posts `openTaskFile`.
+- Reconcile with Task 4's `resumeHistoryTask` click handler — pick one default click action, move the other to an explicit button.
+
+---
+
+## Task 12 — Revisit Dashboard / Statistics / Make-Complete Review
+
+**Goal:** The "complete task" flow and any statistics/dashboard views should be revisited as a cohesive product surface. Current state is ad-hoc — need to decide what metrics matter, where they live, and how the completion review form feeds into them.
+
+### Scope to scope out
+- **Completion review form:** what fields are captured on Complete? (status, notes, difficulty felt, tags…). Are defaults right? Is the UX heavy?
+- **Dashboard placement:** a new tab/section in the webview? A separate VS Code panel? A command that opens a markdown/HTML report?
+- **Metrics to surface:**
+  - Tasks completed (day / week / month / all-time)
+  - Success rate (successfully vs failed vs paused/suspended)
+  - Avg planned vs actual duration; overtime %
+  - Streaks (consecutive days with a completed task)
+  - Breakdown by `language` / `difficulty` / tags (if tags are added)
+  - Time-of-day heatmap
+- **Data source:** all derivable from existing `TaskRecord[]` in globalState — no new persistence needed for the MVP.
+- **Interaction with Task 11:** if tasks link to files, dashboard could surface "most-revisited files" or similar.
+
+### Suggested next step
+Draft a separate `DASHBOARD_PLAN.md` (mirror of `IDLE_DETECTION_PLAN.md`) with:
+1. Product options (minimal stats strip vs full dashboard vs exportable report).
+2. Audit of current Complete dialog — what to keep, what to cut, what to add.
+3. Recommended direction + concrete type/UI changes.
 
 ---
 
