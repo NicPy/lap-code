@@ -11,7 +11,7 @@ export function HistoryList() {
   const filtered = activeTab === 'favourites' ? tasks.filter(t => t.isFavourite) : tasks;
 
   return (
-    <div class="history">
+    <div class="history-section">
       <div class="history-tabs">
         <button
           class={`history-tab ${activeTab === 'all' ? 'history-tab--active' : ''}`}
@@ -26,15 +26,19 @@ export function HistoryList() {
           Favourites
         </button>
       </div>
-      {filtered.length === 0 ? (
-        <p class="history__empty">
-          {activeTab === 'favourites' ? 'No favourite tasks yet.' : 'No completed tasks yet.'}
-        </p>
-      ) : (
-        filtered.map((task) => (
-          <TaskItem key={task.id} task={task} isActive={task.id === activeId} />
-        ))
-      )}
+      <div class="history-scroll">
+        <div class="history">
+          {filtered.length === 0 ? (
+            <p class="history__empty">
+              {activeTab === 'favourites' ? 'No favourite tasks yet.' : 'No completed tasks yet.'}
+            </p>
+          ) : (
+            filtered.map((task) => (
+              <TaskItem key={task.id} task={task} isActive={task.id === activeId} />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }

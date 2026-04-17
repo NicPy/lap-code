@@ -6,8 +6,10 @@ import { ExportButton } from './ExportButton';
 
 export function App() {
   return (
-    <div>
-      {isRunning.value ? <ActiveTaskView /> : <StartForm />}
+    <div class="app-layout">
+      <div class="app-top">
+        {isRunning.value ? <ActiveTaskView /> : <StartForm />}
+      </div>
       <HistoryList />
       <ExportButton />
     </div>
