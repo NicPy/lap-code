@@ -1,67 +1,36 @@
-# lap-code
+# Lap Code
 
-A VS Code extension for timed coding practice. Start a countdown for a problem, stay focused, and review your session history — all without leaving the editor.
+**Time your code. Know your pace.**
 
-**Use it to:**
-- Set a time budget per problem and track how long you actually spend
-- See at a glance when you're over time (timer goes red and negative)
-- Build a personal history of solved problems with time spent
+Lap Code is a VS Code extension that brings a focused countdown timer directly into your editor — built for anyone grinding LeetCode, practicing system design, or working through timed challenges.
+
+No context switching. No Alt-Tab. Just code and a clock.
 
 ---
 
-## Debug (run the extension)
+## What it does
 
-1. Install dependencies:
-   ```
-   npm install
-   ```
-2. Build the extension and webview:
-   ```
-   npm run build
-   ```
-3. Press **F5** in VS Code — this opens an Extension Development Host with the extension loaded.
-4. Click the timer icon in the Activity Bar to open the panel.
+- **Set a time budget** for each problem before you start
+- **Live countdown** in your sidebar — turns red and goes negative when you're over time, so you always know where you stand
+- **Session history** logs every problem with your planned vs. actual time, building a personal record of your practice
 
-## Local Development
+---
 
-Run watchers for both the extension host and the webview in parallel:
+## Why it's useful
 
-```
-npm run dev
-```
+Most coders either ignore time completely or glance at a phone clock mid-thought. Lap Code puts the timer where your focus already is — inside VS Code — and makes the data stick. Over time, your history tells you exactly how fast you solve what kind of problem.
 
-- Changes to `src/extension.ts` or other host files recompile automatically via `tsc --watch`.
-- Changes to `src/webview/` rebuild the Vite bundle automatically.
-- After a host-side change, reload the Extension Development Host window (**Ctrl+R** / **Cmd+R**).
+It's the difference between practicing and **training**.
 
-**Webview-only iteration** (faster, no VS Code needed):
+---
 
-```
-npm run dev:webview
-```
+## Getting started
 
-Opens a Vite dev server at `http://localhost:5173` with HMR and mock data — useful for UI work.
+1. Install the extension
+2. Click the **Lap Code** icon in the Activity Bar
+3. Enter a problem name and your time target
+4. Hit **Start** — and code
 
-## Build & Install Locally
+---
 
-To package the extension and install it into your local VS Code:
-
-1. Install `vsce` if you don't have it:
-   ```
-   npm install -g @vscode/vsce
-   ```
-2. Build the extension:
-   ```
-   npm run build
-   ```
-3. Package it into a `.vsix` file:
-   ```
-   vsce package
-   ```
-4. Install the `.vsix` in VS Code (replace `x.x.x` with the version in `package.json`):
-   ```
-   code --install-extension lap-code-x.x.x.vsix
-   ```
-5. Reload VS Code (reopen the window or run **Developer: Reload Window** from the command palette).
-
-> **Tip:** After making changes, repeat steps 2–5 to update the installed extension. The `.vsix` filename always reflects the `version` field in `package.json`.
+> For development setup and local build instructions, see [docs/contributing.md](docs/contributing.md).
