@@ -272,7 +272,7 @@ export function StartForm() {
           id="planned-time"
           ref={minutesRef}
           type="number"
-          value={45}
+          defaultValue={45}
           min={1}
           max={300}
           onKeyDown={handleKeyDown}
