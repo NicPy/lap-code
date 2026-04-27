@@ -17,11 +17,11 @@ Work through them in order. Read each section fully before starting.
 - [x] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
 
 - [x] **Task 9** — Import Tasks (auto-detect CSV/JSON, merge into history)
-- [ ] **Task 10** — Forgotten Task / Idle Detection — **revisit next.** Full analysis, product options, VS Code API survey, and recommended direction in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
-- [ ] **Task 11** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing/changed).
+- [x] **Task 10** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing).
+- [ ] **Task 11** — Forgotten Task / Idle Detection — Full analysis, product options, VS Code API survey, and recommended direction in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
 - [ ] **Task 12** — Revisit logic for dashboard / statistics / make-complete review.
 
-**Progress:** 9/12 tasks completed
+**Progress:** 10/12 tasks completed
 
 ---
 
@@ -270,7 +270,7 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
 
 ---
 
-## Task 11 — Open-on-click: Task → Associated File
+## Task 10 — Open-on-click: Task → Associated File
 
 **Goal:** When a task is added, the extension creates (or records a reference to) a file tied to that task. Clicking the task anywhere in the UI opens that file in an editor. If the file was deleted, moved, or its contents changed meaningfully since creation, do nothing (silent no-op — no error toast).
 

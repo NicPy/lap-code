@@ -26,5 +26,6 @@ export function toTaskRecord(task: ActiveTask, status: TaskRecord['status']): Ta
     source: task.source,
     language: task.language,
     difficulty: task.difficulty,
+    filePath: task.filePath,
   };
 }

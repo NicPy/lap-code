@@ -24,17 +24,17 @@ const SOURCE_CONFIG: Record<string, ProblemFileConfig> = {
   },
 };
 
-/** Create a problem file in the workspace for the given source. */
+/** Create a problem file in the workspace for the given source. Returns the absolute file path. */
 export async function createProblemFile(
   source: TaskSource,
   problem: LeetcodeProblem,
   langSlug: string,
-): Promise<void> {
+): Promise<string> {
   const config = SOURCE_CONFIG[source];
-  if (!config) { return; }
+  if (!config) { return ''; }
 
   const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri;
-  if (!workspaceRoot) { return; }
+  if (!workspaceRoot) { return ''; }
 
   const ext = LEETCODE_LANGUAGES.find(l => l.slug === langSlug)?.ext ?? 'js';
   const details = await config.getDetails(problem.slug);
@@ -48,4 +48,6 @@ export async function createProblemFile(
 
   const doc = await vscode.workspace.openTextDocument(fileUri);
   await vscode.window.showTextDocument(doc, { preview: false });
+
+  return fileUri.fsPath;
 }

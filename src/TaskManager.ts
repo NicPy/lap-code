@@ -57,11 +57,21 @@ export class TaskManager {
     this.saveHistory([record, ...this.getHistory()]);
     this.broadcastSnapshot();
 
-    // Create problem file in the background
+    // Create problem file in the background; store path when done
     if ((source === 'leetcode' || source === 'neetcode') && problem && language) {
-      createProblemFile(source, problem, language).catch(err => {
-        console.error(`[lap-code] Failed to create ${source} file:`, err);
-      });
+      const taskId = this.activeTask.id;
+      createProblemFile(source, problem, language)
+        .then(filePath => {
+          if (!filePath) { return; }
+          if (this.activeTask?.id === taskId) {
+            this.activeTask.filePath = filePath;
+          }
+          this.updateHistoryEntry(taskId, { filePath });
+          this.broadcastSnapshot();
+        })
+        .catch(err => {
+          console.error(`[lap-code] Failed to create ${source} file:`, err);
+        });
     }
   }
 
@@ -142,6 +152,7 @@ export class TaskManager {
       source: found.source,
       language: found.language,
       difficulty: found.difficulty,
+      filePath: found.filePath,
     };
     this.showStatusBar();
     this.broadcastSnapshot();
@@ -156,6 +167,22 @@ export class TaskManager {
   appendToHistory(tasks: TaskRecord[]): void {
     this.saveHistory([...this.getHistory(), ...tasks]);
     this.broadcastSnapshot();
+  }
+
+  async openTaskFile(id: string): Promise<void> {
+    const task = this.activeTask?.id === id
+      ? this.activeTask
+      : this.getHistory().find(t => t.id === id);
+
+    if (!task?.filePath) { return; }
+
+    try {
+      await vscode.workspace.fs.stat(vscode.Uri.file(task.filePath));
+      const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(task.filePath));
+      await vscode.window.showTextDocument(doc, { preview: false });
+    } catch {
+      // File missing or inaccessible — silent no-op
+    }
   }
 
   toggleFavourite(id: string): void {

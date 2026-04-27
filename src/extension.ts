@@ -104,6 +104,10 @@ function handleMessage(msg: WebviewMessage): void {
     case 'importTasks':
       handleImport();
       break;
+
+    case 'openTaskFile':
+      manager.openTaskFile(msg.id);
+      break;
   }
 }
 

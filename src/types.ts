@@ -19,6 +19,7 @@ export interface TaskRecord {
   language?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   isFavourite?: boolean;
+  filePath?: string;
 }
 
 export interface ActiveTask {
@@ -30,6 +31,7 @@ export interface ActiveTask {
   source: TaskSource;
   language?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
+  filePath?: string;
 }
 
 // Webview → Host
@@ -47,7 +49,8 @@ export type WebviewMessage =
   | { type: 'resumeHistoryTask'; id: string }
   | { type: 'restartTask' }
   | { type: 'exportTasks'; format: 'csv' | 'json' }
-  | { type: 'importTasks' };
+  | { type: 'importTasks' }
+  | { type: 'openTaskFile'; id: string };
 
 // Host → Webview
 export type HostMessage =

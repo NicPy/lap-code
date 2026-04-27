@@ -45,7 +45,11 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
 
   function handleCardClick() {
     if (isActive || confirmDelete) { return; }
-    vscode.postMessage({ type: 'resumeHistoryTask', id: task.id });
+    if (task.filePath) {
+      vscode.postMessage({ type: 'openTaskFile', id: task.id });
+    } else {
+      vscode.postMessage({ type: 'resumeHistoryTask', id: task.id });
+    }
   }
 
   function handleFavouriteClick(e: MouseEvent) {
