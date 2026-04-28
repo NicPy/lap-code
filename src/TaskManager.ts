@@ -104,6 +104,17 @@ export class TaskManager {
     this.broadcastSnapshot();
   }
 
+  discardActive(): void {
+    if (!this.activeTask) { return; }
+    this.stopInterval();
+    this.statusBar.hide();
+
+    // Remove the in-progress history entry that was inserted on start
+    this.saveHistory(this.getHistory().filter(t => t.id !== this.activeTask!.id));
+    this.activeTask = null;
+    this.broadcastSnapshot();
+  }
+
   complete(status: CompletionStatus): void {
     if (!this.activeTask) { return; }
     this.stopInterval();

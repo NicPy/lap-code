@@ -44,6 +44,7 @@ export type WebviewMessage =
   | { type: 'deleteTask'; id: string }
   | { type: 'toggleFavourite'; id: string }
   | { type: 'shelveTask' }
+  | { type: 'discardActiveTask' }
   | { type: 'resumeHistoryTask'; id: string }
   | { type: 'restartTask' }
   | { type: 'exportTasks'; format: 'csv' | 'json' }

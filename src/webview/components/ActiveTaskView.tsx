@@ -21,6 +21,7 @@ export function ActiveTaskView() {
   const paused = isPaused.value;
   const [showComplete, setShowComplete] = useState(false);
   const [showRestart, setShowRestart] = useState(false);
+  const [showDiscard, setShowDiscard] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<CompletionStatus>('successfully');
 
   if (!task) { return null; }
@@ -36,6 +37,7 @@ export function ActiveTaskView() {
     const opening = !showComplete;
     setShowComplete(opening);
     setShowRestart(false);
+    setShowDiscard(false);
     if (opening && !paused) {
       vscode.postMessage({ type: 'pauseTask' });
     } else if (!opening && paused) {
@@ -52,6 +54,19 @@ export function ActiveTaskView() {
     const opening = !showRestart;
     setShowRestart(opening);
     setShowComplete(false);
+    setShowDiscard(false);
+  }
+
+  function handleToggleDiscard() {
+    const opening = !showDiscard;
+    setShowDiscard(opening);
+    setShowRestart(false);
+    setShowComplete(false);
+  }
+
+  function handleConfirmDiscard() {
+    vscode.postMessage({ type: 'discardActiveTask' });
+    setShowDiscard(false);
   }
 
   function handleConfirmRestart() {
@@ -90,6 +105,24 @@ export function ActiveTaskView() {
       <button class="btn-secondary btn-full active-task__new" onClick={handleStartNewTask}>
         Start New Task
       </button>
+
+      <button class="btn-danger btn-full active-task__new" onClick={handleToggleDiscard}>
+        Delete Task
+      </button>
+
+      {showDiscard && (
+        <div class="confirm-popover">
+          <p class="confirm-popover__label">Delete this task? It will not be saved.</p>
+          <div class="confirm-popover__actions">
+            <button class="btn-danger" onClick={handleConfirmDiscard}>
+              Delete
+            </button>
+            <button class="btn-secondary" onClick={() => setShowDiscard(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {showRestart && (
         <div class="confirm-popover">

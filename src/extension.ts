@@ -81,6 +81,10 @@ function handleMessage(msg: WebviewMessage): void {
       manager.shelve();
       break;
 
+    case 'discardActiveTask':
+      manager.discardActive();
+      break;
+
     case 'completeTask':
       manager.complete(msg.status);
       break;
