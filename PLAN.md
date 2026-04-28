@@ -17,11 +17,12 @@ Work through them in order. Read each section fully before starting.
 - [x] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
 
 - [x] **Task 9** — Import Tasks (auto-detect CSV/JSON, merge into history)
-- [ ] **Task 10** — Forgotten Task / Idle Detection — **revisit next.** Full analysis, product options, VS Code API survey, and recommended direction in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
-- [ ] **Task 11** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing/changed).
-- [ ] **Task 12** — Revisit logic for dashboard / statistics / make-complete review.
+- [ ] **Task 10** — Task Completion Effects (code-rain confetti on success, mentor quote on failure) — Full psychology research, mobile app pattern survey, and implementation guide in [COMPLETION_EFFECTS_PLAN.md](COMPLETION_EFFECTS_PLAN.md).
+- [ ] **Task 11** — Forgotten Task / Idle Detection — **revisit next.** Full analysis, product options, VS Code API survey, and recommended direction in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
+- [ ] **Task 12** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing/changed).
+- [ ] **Task 13** — Revisit logic for dashboard / statistics / make-complete review.
 
-**Progress:** 9/12 tasks completed
+**Progress:** 9/13 tasks completed
 
 ---
 
@@ -270,7 +271,42 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
 
 ---
 
-## Task 11 — Open-on-click: Task → Associated File
+## Task 10 — Task Completion Effects
+
+**Goal:** Make task completion feel rewarding and human. A successful completion triggers a brief "code rain" confetti burst (code symbols fall across the panel). A failed completion shows a slim motivational quote banner that slides up from the bottom and auto-dismisses.
+
+Full psychology research, mobile app pattern survey, visual design rationale, curated quote list, and step-by-step implementation code are in **[COMPLETION_EFFECTS_PLAN.md](COMPLETION_EFFECTS_PLAN.md)**.
+
+### Summary of changes
+
+**New files:**
+- `src/webview/fx/confetti.ts` — canvas-based code-rain particle system (no external deps)
+- `src/webview/fx/failureQuote.ts` — DOM banner that slides in / auto-dismisses
+- `src/webview/fx/quotes.ts` — 12 curated quotes from Edison, Dijkstra, Aurelius, etc.
+
+**Modified files:**
+- `src/webview/App.tsx` — call `setupCompletionEffects()` on mount (one `useEffect`)
+- `src/webview/style.css` — add `.failure-quote-banner` and `@keyframes` (see plan doc)
+
+### Behaviour spec
+- `status: 'successfully'` → code-rain confetti (~60 code-symbol particles, 1.6s, fades out)
+- `status: 'failed'` → slim banner slides up from bottom, random quote from curated list, auto-dismisses in 4s, click to early-dismiss
+- `status: 'paused'` / `'suspended'` → no effect (neutral states)
+- Respects `prefers-reduced-motion` — skip confetti if user has reduced motion enabled
+- No sound, no modals, no required user interaction
+
+### Detection mechanism
+Watch the `history` signal for a new item prepended (compare `history.value[0].id` to the previously seen top ID). Trigger the effect based on the new item's `status`. Guard with the previous ID to prevent double-fires.
+
+---
+
+## Task 11 — Forgotten Task / Idle Detection
+
+**Goal:** Detect when a programmer walks away from a running task (idle for N minutes) and take a configurable action: pause, prompt, or log the idle time. Full analysis in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
+
+---
+
+## Task 12 — Open-on-click: Task → Associated File
 
 **Goal:** When a task is added, the extension creates (or records a reference to) a file tied to that task. Clicking the task anywhere in the UI opens that file in an editor. If the file was deleted, moved, or its contents changed meaningfully since creation, do nothing (silent no-op — no error toast).
 
@@ -306,7 +342,7 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
 
 ---
 
-## Task 12 — Revisit Dashboard / Statistics / Make-Complete Review
+## Task 13 — Revisit Dashboard / Statistics / Make-Complete Review
 
 **Goal:** The "complete task" flow and any statistics/dashboard views should be revisited as a cohesive product surface. Current state is ad-hoc — need to decide what metrics matter, where they live, and how the completion review form feeds into them.
 
@@ -321,7 +357,7 @@ Use CSS keyframe animations triggered by a React key or a class toggle.
   - Breakdown by `language` / `difficulty` / tags (if tags are added)
   - Time-of-day heatmap
 - **Data source:** all derivable from existing `TaskRecord[]` in globalState — no new persistence needed for the MVP.
-- **Interaction with Task 11:** if tasks link to files, dashboard could surface "most-revisited files" or similar.
+- **Interaction with Task 12:** if tasks link to files, dashboard could surface "most-revisited files" or similar.
 
 ### Suggested next step
 Draft a separate `DASHBOARD_PLAN.md` (mirror of `IDLE_DETECTION_PLAN.md`) with:
