@@ -21,8 +21,6 @@ export function ActiveTaskView() {
   const paused = isPaused.value;
   const [showComplete, setShowComplete] = useState(false);
   const [showRestart, setShowRestart] = useState(false);
-  const [showDiscard, setShowDiscard] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<CompletionStatus>('successfully');
 
   if (!task) { return null; }
 
@@ -30,6 +28,9 @@ export function ActiveTaskView() {
   const isOvertime = remaining < 0;
 
   function handlePauseResume() {
+    // Resuming dismisses the completion picker — Complete originally paused
+    // the task, so resuming should also close the prompt it triggered.
+    if (showComplete) { setShowComplete(false); }
     vscode.postMessage({ type: paused ? 'resumeTask' : 'pauseTask' });
   }
 
@@ -37,7 +38,6 @@ export function ActiveTaskView() {
     const opening = !showComplete;
     setShowComplete(opening);
     setShowRestart(false);
-    setShowDiscard(false);
     if (opening && !paused) {
       vscode.postMessage({ type: 'pauseTask' });
     } else if (!opening && paused) {
@@ -45,28 +45,21 @@ export function ActiveTaskView() {
     }
   }
 
-  function handleSubmitComplete() {
-    vscode.postMessage({ type: 'completeTask', status: selectedStatus });
+  function handleCompleteWith(status: CompletionStatus) {
+    vscode.postMessage({ type: 'completeTask', status });
     setShowComplete(false);
+  }
+
+  function handleCloseComplete() {
+    setShowComplete(false);
+    if (paused) {
+      vscode.postMessage({ type: 'resumeTask' });
+    }
   }
 
   function handleToggleRestart() {
-    const opening = !showRestart;
-    setShowRestart(opening);
+    setShowRestart(!showRestart);
     setShowComplete(false);
-    setShowDiscard(false);
-  }
-
-  function handleToggleDiscard() {
-    const opening = !showDiscard;
-    setShowDiscard(opening);
-    setShowRestart(false);
-    setShowComplete(false);
-  }
-
-  function handleConfirmDiscard() {
-    vscode.postMessage({ type: 'discardActiveTask' });
-    setShowDiscard(false);
   }
 
   function handleConfirmRestart() {
@@ -102,26 +95,10 @@ export function ActiveTaskView() {
         </button>
       </div>
 
-      <button class="btn-secondary btn-full active-task__new" onClick={handleStartNewTask}>
-        Start New Task
-      </button>
-
-      <button class="btn-danger btn-full active-task__new" onClick={handleToggleDiscard}>
-        Delete Task
-      </button>
-
-      {showDiscard && (
-        <div class="confirm-popover">
-          <p class="confirm-popover__label">Delete this task? It will not be saved.</p>
-          <div class="confirm-popover__actions">
-            <button class="btn-danger" onClick={handleConfirmDiscard}>
-              Delete
-            </button>
-            <button class="btn-secondary" onClick={() => setShowDiscard(false)}>
-              Cancel
-            </button>
-          </div>
-        </div>
+      {!showComplete && (
+        <button class="btn-secondary btn-full active-task__new" onClick={handleStartNewTask}>
+          Start New Task
+        </button>
       )}
 
       {showRestart && (
@@ -140,19 +117,27 @@ export function ActiveTaskView() {
 
       {showComplete && (
         <div class="completion-area">
+          <button
+            type="button"
+            class="completion-area__close"
+            aria-label="Close"
+            onClick={handleCloseComplete}
+          >
+            ×
+          </button>
           <p class="completion-area__label">How did it go?</p>
-          <div class="completion-area__row">
-            <select
-              value={selectedStatus}
-              onChange={(e) =>
-                setSelectedStatus((e.target as HTMLSelectElement).value as CompletionStatus)
-              }
+          <div class="completion-area__choices">
+            <button
+              class="btn-success btn-full"
+              onClick={() => handleCompleteWith('successfully')}
             >
-              <option value="successfully">Successfully</option>
-              <option value="failed">Failed</option>
-            </select>
-            <button class="btn-primary" onClick={handleSubmitComplete}>
-              Submit
+              Successfully
+            </button>
+            <button
+              class="btn-danger btn-full"
+              onClick={() => handleCompleteWith('failed')}
+            >
+              Failed
             </button>
           </div>
         </div>

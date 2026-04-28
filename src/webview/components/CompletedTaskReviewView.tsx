@@ -1,7 +1,9 @@
+import { useMemo } from 'preact/hooks';
 import type { TaskRecord } from '@shared/types';
 import { selectedCompletedTask } from '../store';
 import { vscode } from '../vscode';
 import { applyClass } from '../utils/applyClass';
+import { pickRandomQuote } from '../fx/quotes';
 
 function formatElapsed(totalSeconds: number): string {
   const mm = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
@@ -20,7 +22,12 @@ interface Props {
 
 export function CompletedTaskReviewView({ task }: Props) {
   const isPass = task.status === 'successfully';
+  const isFailed = task.status === 'failed';
   const isOvertime = task.elapsedSeconds > task.plannedSeconds;
+
+  // Random quote per task display — fresh pick every time the user lands on a
+  // failed task (re-renders inside the same display use the memoised value).
+  const quote = useMemo(() => isFailed ? pickRandomQuote() : null, [task.id, isFailed]);
 
   function handleTryAgain() {
     vscode.postMessage({ type: 'resumeHistoryTask', id: task.id });
@@ -41,6 +48,15 @@ export function CompletedTaskReviewView({ task }: Props) {
       })}>
         {formatElapsed(task.elapsedSeconds)}
       </div>
+
+      {quote && (
+        <blockquote class="completed-review__quote" key={task.id}>
+          <p class="completed-review__quote-text">"{quote.text}"</p>
+          {quote.author && (
+            <p class="completed-review__quote-author">— {quote.author}</p>
+          )}
+        </blockquote>
+      )}
 
       <div class="completed-review__status-row">
         <span class={applyClass('task-chip', {

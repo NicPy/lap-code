@@ -148,13 +148,21 @@ button:disabled {
 }
 
 .btn-danger {
-  background: var(--vscode-inputValidation-errorBackground);
-  color: var(--vscode-inputValidation-errorForeground, var(--vscode-editor-foreground));
-  border-color: var(--vscode-inputValidation-errorBorder);
+  background: var(--vscode-testing-iconFailed, #f48771);
+  color: #000;
 }
 
 .btn-danger:hover:not(:disabled) {
-  filter: brightness(1.15);
+  filter: brightness(1.1);
+}
+
+.btn-success {
+  background: var(--vscode-testing-iconPassed, #73c991);
+  color: #000;
+}
+
+.btn-success:hover:not(:disabled) {
+  filter: brightness(1.1);
 }
 
 .btn-full {
@@ -360,7 +368,7 @@ select:disabled {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   line-height: 1;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   animation: timer-enter 300ms ease-out;
 }
 
@@ -432,6 +440,7 @@ select:disabled {
 /* ── Completion area ────────────────────────────────────────────────────── */
 
 .completion-area {
+  position: relative;
   background: var(--vscode-input-background);
   border-radius: 4px;
   padding: 10px;
@@ -441,7 +450,32 @@ select:disabled {
 .completion-area__label {
   font-size: 11px;
   color: var(--vscode-descriptionForeground);
-  margin-bottom: 6px;
+  margin: 0 0 8px;
+}
+
+.completion-area__close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--vscode-descriptionForeground);
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.completion-area__close:hover {
+  background: var(--vscode-toolbar-hoverBackground, var(--vscode-list-hoverBackground));
+  color: var(--vscode-foreground);
 }
 
 .completion-area__row {
@@ -454,6 +488,12 @@ select:disabled {
 .completion-area__row select {
   flex: 1;
   min-width: 0;
+}
+
+.completion-area__choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 /* ── History list ───────────────────────────────────────────────────────── */
@@ -1016,6 +1056,36 @@ select:disabled {
 @keyframes timer-enter {
   from { opacity: 0; transform: translateY(6px) scale(0.95); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Completed-review failure quote ─────────────────────────────────────── */
+
+.completed-review__quote {
+  margin: 0 0 14px;
+  padding: 11px 13px;
+  background: rgba(244, 135, 113, 0.12);
+  border-left: 3px solid var(--vscode-testing-iconFailed, #f48771);
+  border-radius: 0 4px 4px 0;
+  animation: review-quote-fade-in 380ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.completed-review__quote-text {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--vscode-foreground);
+}
+
+.completed-review__quote-author {
+  margin: 0;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+@keyframes review-quote-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Language tag ───────────────────────────────────────────────────────── */

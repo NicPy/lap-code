@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { isRunning, selectedCompletedTask } from '../store';
+import { setupCompletionEffects } from '../fx/completionEffects';
 import { StartForm } from './StartForm';
 import { ActiveTaskView } from './ActiveTaskView';
 import { CompletedTaskReviewView } from './CompletedTaskReviewView';
@@ -9,6 +10,10 @@ import { ExportButton } from './ExportButton';
 export function App() {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setupCompletionEffects();
+  }, []);
 
   useLayoutEffect(() => {
     const outer = outerRef.current;
