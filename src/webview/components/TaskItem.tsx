@@ -1,7 +1,7 @@
 import { useState, useRef } from 'preact/hooks';
 import type { TaskRecord } from '@shared/types';
 import { SOURCE_DISPLAY, LEETCODE_LANGUAGES } from '@shared/constants';
-import { activeTask } from '../store';
+import { activeTask, selectedCompletedTask } from '../store';
 import { vscode } from '../vscode';
 import { applyClass } from '../utils/applyClass';
 
@@ -37,6 +37,8 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isPass = task.status === 'successfully';
   const isPaused = task.status === 'paused';
+  const isCompleted = !isPaused;
+  const isSelected = selectedCompletedTask.value?.id === task.id;
 
   // For the active card, use live elapsed seconds from the signal
   const elapsed = isActive ? (activeTask.value?.elapsedSeconds ?? task.elapsedSeconds) : task.elapsedSeconds;
@@ -45,6 +47,10 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
 
   function handleCardClick() {
     if (isActive || confirmDelete) { return; }
+    if (isCompleted) {
+      selectedCompletedTask.value = isSelected ? null : task;
+      return;
+    }
     vscode.postMessage({ type: 'resumeHistoryTask', id: task.id });
   }
 
@@ -87,6 +93,7 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
           'task-item--paused': !isActive && isPaused,
           'task-item--pass': !isActive && !isPaused && isPass,
           'task-item--fail': !isActive && !isPaused && !isPass,
+          'task-item--selected': isSelected,
         })}
         onClick={handleCardClick}
       >

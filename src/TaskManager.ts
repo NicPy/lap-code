@@ -149,12 +149,13 @@ export class TaskManager {
       name: found.name,
       plannedSeconds: found.plannedSeconds,
       elapsedSeconds: found.elapsedSeconds,
-      isPaused: true,
+      isPaused: false,
       source: found.source,
       language: found.language,
       difficulty: found.difficulty,
     };
     this.showStatusBar();
+    this.startInterval();
     this.broadcastSnapshot();
   }
 

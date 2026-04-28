@@ -1,7 +1,8 @@
 import { useLayoutEffect, useRef } from 'preact/hooks';
-import { isRunning } from '../store';
+import { isRunning, selectedCompletedTask } from '../store';
 import { StartForm } from './StartForm';
 import { ActiveTaskView } from './ActiveTaskView';
+import { CompletedTaskReviewView } from './CompletedTaskReviewView';
 import { HistoryList } from './HistoryList';
 import { ExportButton } from './ExportButton';
 
@@ -32,7 +33,12 @@ export function App() {
     <div class="app-layout">
       <div class="app-top" ref={outerRef}>
         <div class="app-top__inner" ref={innerRef}>
-          {isRunning.value ? <ActiveTaskView /> : <StartForm />}
+          {isRunning.value
+            ? <ActiveTaskView />
+            : selectedCompletedTask.value
+              ? <CompletedTaskReviewView task={selectedCompletedTask.value} />
+              : <StartForm />
+          }
         </div>
       </div>
       <HistoryList />
