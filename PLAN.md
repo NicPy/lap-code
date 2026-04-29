@@ -18,7 +18,6 @@ Work through them in order. Read each section fully before starting.
 
 - [x] **Task 9** — Import Tasks (auto-detect CSV/JSON, merge into history)
 - [ ] **Task 10** — Task Completion Effects (code-rain confetti on success, mentor quote on failure) — Full psychology research, mobile app pattern survey, and implementation guide in [COMPLETION_EFFECTS_PLAN.md](COMPLETION_EFFECTS_PLAN.md).
-- [ ] **Task 11** — Forgotten Task / Idle Detection — **revisit next.** Full analysis, product options, VS Code API survey, and recommended direction in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
 - [ ] **Task 12** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing/changed).
 - [ ] **Task 13** — Revisit logic for dashboard / statistics / make-complete review.
 
@@ -300,12 +299,6 @@ Watch the `history` signal for a new item prepended (compare `history.value[0].i
 
 ---
 
-## Task 11 — Forgotten Task / Idle Detection
-
-**Goal:** Detect when a programmer walks away from a running task (idle for N minutes) and take a configurable action: pause, prompt, or log the idle time. Full analysis in [IDLE_DETECTION_PLAN.md](IDLE_DETECTION_PLAN.md).
-
----
-
 ## Task 12 — Open-on-click: Task → Associated File
 
 **Goal:** When a task is added, the extension creates (or records a reference to) a file tied to that task. Clicking the task anywhere in the UI opens that file in an editor. If the file was deleted, moved, or its contents changed meaningfully since creation, do nothing (silent no-op — no error toast).
@@ -360,7 +353,7 @@ Watch the `history` signal for a new item prepended (compare `history.value[0].i
 - **Interaction with Task 12:** if tasks link to files, dashboard could surface "most-revisited files" or similar.
 
 ### Suggested next step
-Draft a separate `DASHBOARD_PLAN.md` (mirror of `IDLE_DETECTION_PLAN.md`) with:
+Draft a separate `DASHBOARD_PLAN.md` with:
 1. Product options (minimal stats strip vs full dashboard vs exportable report).
 2. Audit of current Complete dialog — what to keep, what to cut, what to add.
 3. Recommended direction + concrete type/UI changes.
