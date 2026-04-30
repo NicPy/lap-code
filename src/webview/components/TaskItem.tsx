@@ -1,7 +1,7 @@
 import { useState, useRef } from 'preact/hooks';
 import type { TaskRecord } from '@shared/types';
 import { SOURCE_DISPLAY, LEETCODE_LANGUAGES } from '@shared/constants';
-import { activeTask, selectedCompletedTask } from '../store';
+import { activeTask, selectedCompletedTask, isRunning } from '../store';
 import { vscode } from '../vscode';
 import { applyClass } from '../utils/applyClass';
 
@@ -47,10 +47,19 @@ export function TaskItem({ task, isActive, isEntering }: Props) {
 
   function handleCardClick() {
     if (isActive || confirmDelete) { return; }
+    const hasFile = task.source === 'leetcode' || task.source === 'neetcode';
     if (isCompleted) {
-      selectedCompletedTask.value = isSelected ? null : task;
+      if (hasFile) {
+        vscode.postMessage({ type: 'openTaskFile', id: task.id });
+        return;
+      }
+      // Manual task — show review panel only when there's space (no active task running)
+      if (!isRunning.value) {
+        selectedCompletedTask.value = isSelected ? null : task;
+      }
       return;
     }
+    // Paused task: resume it (host also opens the associated file as part of resumeFromHistory)
     vscode.postMessage({ type: 'resumeHistoryTask', id: task.id });
   }
 

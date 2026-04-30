@@ -14,6 +14,14 @@ export function formatStatusBar(task: ActiveTask): string {
   return `${icon} ${task.name}: ${timeStr}`;
 }
 
+/** Convert a task title to a leetcode-style slug (lowercase, dash-separated). */
+export function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 /** Convert an ActiveTask to a TaskRecord. */
 export function toTaskRecord(task: ActiveTask, status: TaskRecord['status']): TaskRecord {
   return {

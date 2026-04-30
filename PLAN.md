@@ -17,11 +17,11 @@ Work through them in order. Read each section fully before starting.
 - [x] **Task 8** — Pause-to-History + Auto-pause on VS Code Close
 
 - [x] **Task 9** — Import Tasks (auto-detect CSV/JSON, merge into history)
-- [ ] **Task 10** — Task Completion Effects (code-rain confetti on success, mentor quote on failure) — Full psychology research, mobile app pattern survey, and implementation guide in [COMPLETION_EFFECTS_PLAN.md](COMPLETION_EFFECTS_PLAN.md).
-- [ ] **Task 12** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing/changed).
+- [x] **Task 10** — Task Completion Effects (code-rain confetti on success, mentor quote on failure) — Full psychology research, mobile app pattern survey, and implementation guide in [COMPLETION_EFFECTS_PLAN.md](COMPLETION_EFFECTS_PLAN.md).
+- [x] **Task 12** — Open-on-click: clicking a task opens the file that was created when the task was added (no-op if file is missing/changed).
 - [ ] **Task 13** — Revisit logic for dashboard / statistics / make-complete review.
 
-**Progress:** 9/13 tasks completed
+**Progress:** 11/13 tasks completed
 
 ---
 
