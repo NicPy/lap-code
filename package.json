@@ -3,14 +3,30 @@
   "displayName": "Lap Code",
   "description": "Track your coding practice sessions with a live timer and history.",
   "repository": "https://github.com/NicPy/lap-code",
-  "version": "0.1.75",
+  "bugs": {
+    "url": "https://github.com/NicPy/lap-code/issues"
+  },
+  "version": "1.0.0",
   "publisher": "NicPy",
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Education"
+  ],
+  "keywords": [
+    "leetcode",
+    "neetcode",
+    "timer",
+    "countdown",
+    "stopwatch",
+    "coding practice",
+    "interview prep",
+    "algorithms",
+    "productivity",
+    "pomodoro"
   ],
   "icon": "resources/logo.png",
   "activationEvents": [],
@@ -40,7 +56,6 @@
     "watch:ext": "tsc -watch -p ./",
     "watch:webview": "vite build --watch",
     "dev:webview": "vite",
-    "prebuild": "npm version patch --no-git-tag-version",
     "build": "tsc -p ./ && vite build",
     "dev": "concurrently \"npm run watch:ext\" \"npm run watch:webview\""
   },
