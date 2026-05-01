@@ -3,7 +3,7 @@
   "displayName": "Lap Code",
   "description": "Track your coding practice sessions with a live timer and history.",
   "repository": "https://github.com/NicPy/lap-code",
-  "version": "0.1.74",
+  "version": "0.1.75",
   "publisher": "NicPy",
   "license": "MIT",
   "engines": {
@@ -21,7 +21,7 @@
         {
           "id": "lap-code-container",
           "title": "Lap Code",
-          "icon": "resources/timer-icon.svg"
+          "icon": "resources/timer-icon.png"
         }
       ]
     },
