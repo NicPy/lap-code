@@ -1,0 +1,16 @@
+.vscode/**
+.claude/**
+node_modules/**
+src/**
+docs/**
+leetcode/**
+neetcode/**
+.gitignore
+.DS_Store
+**/.DS_Store
+**/*.map
+**/tsconfig.json
+vite.config.ts
+*.vsix
+PLAN.md
+COMPLETION_EFFECTS_PLAN.md
